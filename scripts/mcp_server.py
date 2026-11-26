@@ -59,6 +59,8 @@ def _compact(r, why):
         out['map_data'] = r['map_type']
     if r.get('columns'):
         out['column_count'] = len(r['columns'])
+    if r.get('contains'):
+        out['contains'] = r['contains'][:8]
     return out
 
 
@@ -132,6 +134,8 @@ def get_dataset(id: str) -> str:
                                         'type': c.get('type')}.items() if v} for c in cols[:60]] or None,
         'more_columns': max(0, len(cols) - 60) or None,
         'socrata_api': ('https://%s/resource/%s.json' % (r['socrata_domain'], r['socrata_id'])) if r.get('socrata_id') else None,
+        'contains': (r.get('contains') or [])[:40] or None,
+        'sample_rows': r.get('sample_rows'),
         'census_table': (r.get('census') or {}).get('table'),
         'census_universe': (r.get('census') or {}).get('universe'),
         'census_products': (r.get('census') or {}).get('products'),

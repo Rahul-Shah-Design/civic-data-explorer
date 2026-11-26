@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Civic Data Explorer</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light dark;--bg:light-dark(#fff,#10191e);--ink:light-dark(#121212,#e9eef1);--mute:light-dark(#5b6670,#9fb0bb);--red:#e3120b;--slate:light-dark(#2e6f8e,#7fc0dc);--panel:light-dark(#e3ecf0,#18252c);--line:light-dark(#d5dde2,#2a3a43);--card:light-dark(#fff,#132027)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:32px max(4vw,16px)}
+h1{font:600 clamp(30px,4vw,44px)/1.05 "Source Serif 4",Georgia,serif;margin:0 0 6px}
+.lede{color:var(--mute);margin:0 0 20px}
+form{display:flex;gap:8px;flex-wrap:wrap}
+#q{flex:1 1 320px;font:inherit;font-size:18px;padding:13px 15px;border:2px solid var(--ink);background:var(--card);color:var(--ink)}
+select{font:inherit;padding:0 10px;min-height:52px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+button{font:inherit;cursor:pointer;min-height:44px}
+.go{background:var(--ink);color:var(--bg);border:0;padding:0 22px;font-weight:600;min-height:52px}
+:focus-visible{outline:3px solid var(--slate);outline-offset:2px}
+.tries{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:5px 12px;font-size:14px;min-height:34px;border-radius:17px}
+.und{background:var(--panel);padding:10px 14px;margin:18px 0;font-size:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tok{background:var(--card);border:1px solid var(--line);padding:2px 8px}
+.card{border-top:1px solid var(--ink);padding:16px 0 18px}
+.card h3{font:600 22px/1.2 "Source Serif 4",Georgia,serif;margin:0 0 4px}
+.meta{font-size:14px;color:var(--mute);margin:0 0 10px}
+.badge{font-size:12px;font-weight:600;padding:1px 7px;margin-left:6px;border:1px solid currentColor}
+.b-current{color:var(--slate)}.b-stale{color:var(--red)}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:10px}
+.facts div{background:var(--card);padding:7px 10px}.facts dt{font-size:12px;color:var(--mute)}.facts dd{margin:0;font-size:14px;font-weight:500}
+.why{font-size:14px;margin:0 0 8px}.why span{background:var(--panel);padding:1px 7px;margin-right:6px;display:inline-block;margin-bottom:4px}
+.contains{font-size:13px;color:var(--mute);margin:0 0 8px}.contains b{color:var(--ink);font-weight:500}
+.linkbtn{background:none;border:0;color:var(--slate);text-decoration:underline;padding:0;font-size:14px;min-height:32px}
+.detail{background:var(--panel);padding:14px;margin-top:10px;font-size:14px}
+.detail p{margin:0 0 10px;max-width:75ch}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:6px 0 12px;background:var(--card)}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--mute)}
+code{font-size:12px;background:var(--bg);padding:1px 4px;overflow-wrap:anywhere}
+.note{font-size:13px;color:var(--mute)}
+.empty{padding:30px 0;color:var(--mute)}
+@media(max-width:700px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <h1>Find public data in plain English</h1>
+ <p class="lede">Searching about 108,000 US public datasets: federal, Census, state and city.</p>
+ <form id="f" role="search">
+  <input id="q" type="search" placeholder="e.g. asthma rates by county in Ohio" aria-label="What data do you need?">
+  <select id="lvl" aria-label="Geography level"><option value="">Any level</option></select>
+  <button class="go">Search</button>
+ </form>
+ <div class="tries" id="tries"></div>
+ <div id="und"></div>
+ <div id="out"><p class="empty">Ask a question, or try an example above.</p></div>
+ <p class="note">Results come from your local index. Fields marked "inferred" were filled in by rules, not by the publisher.</p>
+</div>
+<script>
+{
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+const LEVELS = ['state','county','city','tract','block group','zip code','school district','neighborhood / ward','address / point'];
+$('lvl').insertAdjacentHTML('beforeend', LEVELS.map(l => `<option>${esc(l)}</option>`).join(''));
+const TRIES = ['asthma rates by county in Ohio','how many kids live in poverty in my county','car crashes in New York City','restaurant inspections in Chicago','lead in school drinking water Michigan','renters spending too much on rent'];
+$('tries').innerHTML = TRIES.map(t => `<button class="chip" type="button">${esc(t)}</button>`).join('');
+$('tries').onclick = e => { if (e.target.matches('.chip')) { $('q').value = e.target.textContent; run(); } };
+$('f').onsubmit = e => { e.preventDefault(); run(); };
+
+async function run() {
+  const q = $('q').value.trim(); if (!q) return;
+  $('out').innerHTML = '<p class="empty">Searching…</p>';
+  const p = new URLSearchParams({q, n: 12}); if ($('lvl').value) p.set('level', $('lvl').value);
+  let d;
+  try { d = await (await fetch('/api/search?' + p)).json(); } catch (e) { $('out').innerHTML = '<p class="empty">Search failed. Is the server running?</p>'; return; }
+  const u = d.understood || {};
+  const toks = [u.state && ['Place', u.state], u.level && ['Level', u.level], u.years && ['Years', u.years.join(' to ')], u.wants_map_data && ['Wants', 'map data']].filter(Boolean);
+  $('und').innerHTML = `<div class="und"><b>Understood:</b>${toks.length ? toks.map(([k, v]) => `<span class="tok">${esc(k)}: ${esc(v)}</span>`).join('') : '<span class="tok">topic only</span>'}${d.hidden_by_filters ? `<span>${d.hidden_by_filters} hidden for a different place or older years</span>` : ''}</div>`;
+  if (!d.results || !d.results.length) { $('out').innerHTML = '<p class="empty">No matching datasets. Try broader words.</p>'; return; }
+  $('out').innerHTML = d.results.map(card).join('');
+}
+function card(r) {
+  const badge = r.freshness === 'current' ? '<span class="badge b-current">Current</span>' : r.freshness === 'stale' ? '<span class="badge b-stale">Stale</span>' : '';
+  const facts = [['Covers', r.covers], ['Levels', (r.levels || []).slice(0, 4).join(', ') || 'not stated'], ['Years', r.years || 'not stated'], ['Access', (r.access || []).join(', ').replace('documents_only', 'documents only')]];
+  const extra = [r.grouped_files && `${r.grouped_files} files grouped`, r.column_count && `${r.column_count} columns`, r.map_data && `map data (${r.map_data})`].filter(Boolean);
+  return `<article class="card"><h3>${esc(r.title)}</h3>
+  <p class="meta">${esc(r.publisher)}${badge}${extra.length ? ' · ' + esc(extra.join(' · ')) : ''}</p>
+  <dl class="facts">${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
+  <p class="why">${(r.why || []).map(w => `<span>${esc(w)}</span>`).join('')}</p>
+  ${r.contains ? `<p class="contains"><b>Inside:</b> ${esc(r.contains.join(' · '))}</p>` : ''}
+  <button class="linkbtn" data-id="${esc(r.id)}">Show details</button><div></div></article>`;
+}
+$('out').onclick = async e => {
+  const b = e.target.closest('[data-id]'); if (!b) return;
+  const box = b.nextElementSibling;
+  if (box.innerHTML) { box.innerHTML = ''; b.textContent = 'Show details'; return; }
+  b.textContent = 'Loading…';
+  const d = await (await fetch('/api/dataset/' + encodeURIComponent(b.dataset.id))).json();
+  b.textContent = 'Hide details';
+  const cols = d.columns || [];
+  const sample = d.sample_rows || [];
+  const sk = sample.length ? Object.keys(sample[0]).slice(0, 8) : [];
+  const prov = Object.entries(d.provenance || {}).filter(([, v]) => v).map(([k, v]) => `${k}: inferred (${v.replace('rule:', '')})`);
+  box.innerHTML = `<div class="detail">
+   ${d.original_title ? `<p><b>Official title:</b> ${esc(d.original_title)}</p>` : ''}
+   <p>${esc((d.description || '').replace(/<[^>]+>/g, ' ').slice(0, 900))}</p>
+   ${d.url ? `<p><b>Link:</b> <a href="${esc(d.url)}" target="_blank" rel="noopener">${esc(d.url)}</a></p>` : ''}
+   ${d.socrata_api ? `<p><b>API:</b> <code>${esc(d.socrata_api)}</code></p>` : ''}
+   ${d.census_universe ? `<p><b>Universe:</b> ${esc(d.census_universe)}</p>` : ''}
+   ${d.caveats ? `<p><b>Watch out:</b> ${esc(d.caveats.join(' '))}</p>` : ''}
+   ${cols.length ? `<b>Columns</b> (${cols.length}${d.more_columns ? '+' + d.more_columns : ''})<div class="scroll"><table><tr><th>Name</th><th>In the file</th><th>Type</th></tr>${cols.slice(0, 15).map(c => `<tr><td>${esc(c.name)}${c.description ? `<div class="note">${esc(c.description.slice(0, 140))}</div>` : ''}</td><td><code>${esc(c.field)}</code></td><td>${esc(c.type || '')}</td></tr>`).join('')}</table></div>${cols.length > 15 ? `<p class="note">and ${cols.length - 15} more</p>` : ''}` : '<p class="note">Columns not listed by the publisher.</p>'}
+   ${sample.length ? `<b>Sample rows</b><div class="scroll"><table><tr>${sk.map(k => `<th>${esc(k)}</th>`).join('')}</tr>${sample.map(r => `<tr>${sk.map(k => `<td>${esc(String(r[k] ?? '').slice(0, 60))}</td>`).join('')}</tr>`).join('')}</table></div>` : ''}
+   ${prov.length ? `<p class="note">${esc(prov.join(' · '))}</p>` : ''}
+  </div>`;
+};
+}
+</script>
+</body>
+</html>

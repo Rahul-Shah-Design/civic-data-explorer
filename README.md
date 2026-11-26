@@ -81,3 +81,10 @@ python scripts/search.py index/search.db "..." --mode keyword   # or vector, hyb
 python scripts/update_index.py index/search.db index/patch.jsonl
 ```
 Replaces changed records and re-embeds only those whose text changed.
+
+## Web UI (local)
+
+```bash
+python scripts/web.py index/search.db    # open http://localhost:8000
+```
+Same search as the MCP tools, plus a JSON API at `/api/search?q=...` and `/api/dataset/{id}` (docs at `/docs`).
