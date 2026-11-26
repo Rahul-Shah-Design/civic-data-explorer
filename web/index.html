@@ -79,7 +79,7 @@ async function run() {
   const toks = [u.state && ['Place', u.state], u.level && ['Level', u.level], u.years && ['Years', u.years.join(' to ')], u.wants_map_data && ['Wants', 'map data']].filter(Boolean);
   $('und').innerHTML = `<div class="und"><b>Understood:</b>${toks.length ? toks.map(([k, v]) => `<span class="tok">${esc(k)}: ${esc(v)}</span>`).join('') : '<span class="tok">topic only</span>'}${d.hidden_by_filters ? `<span>${d.hidden_by_filters} hidden for a different place or older years</span>` : ''}</div>`;
   if (!d.results || !d.results.length) { $('out').innerHTML = '<p class="empty">No matching datasets. Try broader words.</p>'; return; }
-  $('out').innerHTML = d.results.map(card).join('');
+  $('out').innerHTML = d.results.map(card).join('') + (d.found_inside_data && d.found_inside_data.length ? '<h2 style="font:600 18px/1.2 Inter,sans-serif;margin:24px 0 4px">Also found inside the data</h2><p class="note">These titles don\'t mention your topic, but their contents do.</p>' + d.found_inside_data.map(card).join('') : '');
 }
 function card(r) {
   const badge = r.freshness === 'current' ? '<span class="badge b-current">Current</span>' : r.freshness === 'stale' ? '<span class="badge b-stale">Stale</span>' : '';

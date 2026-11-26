@@ -33,8 +33,8 @@ GEO_WORDS = [('tract', r'\btracts?\b|\bneighborhoods?\b'), ('block group', r'\bb
 STOP = set('a an the in of by for to and or on at with from is are was what which where who how many much do does did my our me i '
            'data dataset datasets find show get about any there since after before between per rates rate level each'.split())
 # Value matching: how much a match on a value inside the data counts, and how close it must be (cosine distance)
-VAL_WEIGHT = 0.3
-VAL_MAX_DIST = 0.22
+VAL_WEIGHT = 0.0    # 0 = values don't reorder the main list (measured: reordering cost hit@1)
+VAL_MAX_DIST = 0.30
 VAL_GATE = True  # a value must also share a topic word with the question
 # Reranker: a small cross-encoder rereads the top candidates together with the question and reorders them
 RERANK_MODEL = None          # e.g. 'Xenova/ms-marco-MiniLM-L-6-v2' (small) or 'BAAI/bge-reranker-base' (bigger); None = off
@@ -115,6 +115,7 @@ def search(db, q, n=10, mode='hybrid', model=None, overrides=None):
         p['place'] = NAME_OF.get(p['state'], p['state'])
     fq, toks = fts_query(q, p)
     ranks = {}  # rowid -> {'kw': rank, 'vec': rank}
+    inside_hits = {}  # rowid -> matching value text (dict keeps match order)
     if mode in ('hybrid', 'keyword') and fq:
         if p['state']:
             # filter inside SQL so state-specific matches are not crowded out by other states
@@ -152,7 +153,7 @@ def search(db, q, n=10, mode='hybrid', model=None, overrides=None):
         for i, (rid, dist) in enumerate(rows):
             ranks.setdefault(rid, {})['vec'] = i + 1
         # values inside datasets (e.g. 'Current asthma among adults') matched directly against the question
-        if VAL_WEIGHT > 0 and db.execute("SELECT count(*) FROM sqlite_master WHERE name='vec_vals'").fetchone()[0]:
+        if db.execute("SELECT count(*) FROM sqlite_master WHERE name='vec_vals'").fetchone()[0]:
             vrows = db.execute('SELECT v.rowid, v.distance, x.text, x.rowids FROM vec_vals v JOIN vals x ON x.vid = v.rowid '
                                'WHERE v.embedding MATCH ? AND k = 60', (sqlite_vec.serialize_float32([float(x) for x in qv]),)).fetchall()
             seen = 0
@@ -163,12 +164,15 @@ def search(db, q, n=10, mode='hybrid', model=None, overrides=None):
                 if VAL_GATE and not stems & {w[:5] for w in re.findall(r'[a-z]+', text.lower()) if len(w) >= 4}:
                     continue  # semantically close but shares no topic word: usually noise
                 for rid in json.loads(rids):
-                    if 'val' not in ranks.get(rid, {}):
-                        seen += 1
-                        ranks.setdefault(rid, {})['val'] = seen
-                        ranks[rid]['val_text'] = text
-    if not ranks:
-        return p, [], 0
+                    if VAL_WEIGHT > 0:
+                        if 'val' not in ranks.get(rid, {}):
+                            seen += 1
+                            ranks.setdefault(rid, {})['val'] = seen
+                            ranks[rid]['val_text'] = text
+                    elif rid not in inside_hits:
+                        inside_hits[rid] = (dist, text)  # kept aside: shown as 'found inside the data', not mixed into the ranking
+    if not ranks and not inside_hits:
+        return p, [], 0, []
     ids = list(ranks)
     recs = {}
     for chunk in range(0, len(ids), 500):
@@ -227,7 +231,23 @@ def search(db, q, n=10, mode='hybrid', model=None, overrides=None):
             mixed.append((RERANK_MIX * cn + (1 - RERANK_MIX) * (sc / top_s), r, w, rk))
         mixed.sort(key=lambda x: -x[0])
         out = mixed + tail
-    return p, [dict(score=round(s, 5), why=w, ranks={k: v for k, v in rk.items() if k != 'val_text'}, record=r) for s, r, w, rk in out[:n]], hidden
+    top = out[:n]
+    shown = {r['id'] for _, r, _, _ in top}
+    inside, cands = [], []
+    for rid, (dist, text) in inside_hits.items():
+        row = db.execute('SELECT doc FROM records WHERE rowid = ?', (rid,)).fetchone()
+        r = json.loads(row[0])
+        # closest value first, with a small nudge toward well-used datasets and away from research one-offs
+        cands.append((dist - 0.012 * math.log1p(r.get('popularity') or 0) + (0.05 if r.get('research_like') else 0), rid, text, r))
+    for _, rid, text, r in sorted(cands, key=lambda x: x[0]):
+        if len(inside) >= 5:
+            break
+        st = r.get('states') or []
+        if r['id'] in shown or (p['state'] and st and p['state'] not in st and 'US' not in st):
+            continue
+        shown.add(r['id'])
+        inside.append(dict(why=['has data on "%s"' % text[:80], 'found inside the data, not in its title'], record=r))
+    return p, [dict(score=round(s, 5), why=w, ranks={k: v for k, v in rk.items() if k != 'val_text'}, record=r) for s, r, w, rk in top], hidden, inside
 
 
 def url_of(r):
@@ -254,8 +274,7 @@ def main():
     global RERANK_MODEL
     RERANK_MODEL = a.rerank
     res = search(db, a.query, a.n, a.mode)
-    p, hits = res[0], res[1]
-    hidden = res[2] if len(res) > 2 else 0
+    p, hits, hidden, inside = res
     if a.json:
         slim = []
         for h in hits:
@@ -264,7 +283,8 @@ def main():
                                                 'freshness', 'access', 'formats', 'map_type', 'series_count', 'derived')}
                         | {'url': url_of(r)}
                         | {'why': h['why'], 'columns': [c.get('name') for c in (r.get('columns') or [])[:15]] or None})
-        print(json.dumps({'query': a.query, 'understood': p, 'hidden_by_filters': hidden, 'results': slim}, indent=1))
+        print(json.dumps({'query': a.query, 'understood': p, 'hidden_by_filters': hidden, 'results': slim,
+                          'found_inside_data': [{'id': h['record']['id'], 'display_title': h['record']['display_title'], 'why': h['why']} for h in inside]}, indent=1))
         return
     u = [x for x in ['place: ' + p['place'] if p['place'] else '', 'years: %s-%s' % p['years'] if p['years'] else '',
                      'level: ' + p['geo'] if p['geo'] else '', 'wants map data' if p['map'] else ''] if x]
@@ -280,6 +300,11 @@ def main():
         if r.get('geo_levels'): extra.append('levels: ' + ', '.join(r['geo_levels'][:4]))
         print('    why: %s%s' % ('; '.join(h['why']), ('  [' + '; '.join(extra) + ']') if extra else ''))
         print('    %s' % url_of(r))
+    if inside:
+        print('\nAlso found inside the data (the title doesn\'t mention it):')
+        for h in inside:
+            r = h['record']
+            print('  - %s  [%s]' % (r['display_title'][:100], h['why'][0]))
     if not hits:
         print('No results.')
 

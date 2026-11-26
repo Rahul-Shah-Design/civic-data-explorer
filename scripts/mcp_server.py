@@ -83,19 +83,23 @@ def search_datasets(query: str, state: str | None = None, level: str | None = No
         limit: Number of results, 1 to 20 (default 5).
 
     Returns JSON: what the query was understood as, how many results filters removed, and ranked results
-    with coverage, freshness, access type and why each matched. Use get_dataset(id) for details.
+    with coverage, freshness, access type and why each matched. 'found_inside_data' lists extra datasets whose
+    titles don't mention the topic but whose contents do (e.g. a health survey with an asthma measure): check them too.
+    Use get_dataset(id) for details.
     """
     if level and level not in LEVELS:
         return json.dumps({'error': 'unknown level %r' % level, 'valid_levels': LEVELS})
     years = (year_from or 1900, year_to or 2026) if (year_from or year_to) else None
     ov = {'state': state.upper() if state else None, 'geo': level, 'years': years}
-    p, hits, hidden = S.search(db, query, max(1, min(limit, 20)), 'hybrid', model(), ov)
+    p, hits, hidden, inside = S.search(db, query, max(1, min(limit, 20)), 'hybrid', model(), ov)
     res = {
         'understood': {k: v for k, v in {'state': p['state'], 'level': p['geo'], 'years': p['years'],
                                           'wants_map_data': p['map'] or None}.items() if v},
         'hidden_by_filters': hidden,
         'results': [_compact(h['record'], h['why']) for h in hits],
     }
+    if inside:
+        res['found_inside_data'] = [_compact(h['record'], h['why']) for h in inside]
     if not hits:
         res['note'] = 'No matching datasets. Try broader words, drop a filter, or tell the user none was found.'
     return json.dumps(res, ensure_ascii=False)

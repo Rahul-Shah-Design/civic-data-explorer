@@ -47,8 +47,9 @@ def main():
                 exp = {e['id'] for e in q['expected']}
                 rank = next((i + 1 for i, g in enumerate(got) if g in exp), None)
                 c['n'] += 1; c['h1'] += rank == 1; c['h5'] += bool(rank and rank <= 5); c['h10'] += rank is not None; c['rr'] += 1.0 / rank if rank else 0
-            top = [h['record']['display_title'] for h in S.search(db, 'asthma rates in Ohio', 20, 'hybrid', model)[1]]
-            pr = next((i + 1 for i, t in enumerate(top) if t.startswith('PLACES')), None)
+            res_ = S.search(db, 'asthma rates in Ohio', 20, 'hybrid', model)
+            top = [h['record']['display_title'] for h in res_[1]] + ['(inside) ' + h['record']['display_title'] for h in res_[3]]
+            pr = next(((i + 1) if not t.startswith('(inside)') else 'in "found inside"' for i, t in enumerate(top) if 'PLACES' in t), None)
             label = ('rerank ' + rr.split('/')[-1][:14]) if rr else ('values off' if w == 0 else 'w %.2f d %.2f %s' % (w, dmax, 'gated' if gate else 'ungated'))
             print('%-22s %6d %6d %7d %6.2f  %s' % (label, c['h1'], c['h5'], c['h10'], c['rr'] / c['n'], pr or 'not in top 20'), flush=True)
         return
