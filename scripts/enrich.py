@@ -142,6 +142,12 @@ if os.path.exists(P('raw', 'census_vars.jsonl')):
     for line in open(P('raw', 'census_vars.jsonl')):
         x = json.loads(line)
         CENSUS_VARS[x['id']] = x
+PEEK = {}
+if os.path.exists(P('raw', 'csv_peek.jsonl')):
+    for line in open(P('raw', 'csv_peek.jsonl')):
+        x = json.loads(line)
+        if 'error' not in x:
+            PEEK[x['id']] = x
 RESEARCH = re.compile(r'scihub|\bet al\b|^dataset ?[-:]|supporting dataset|^data (for|from|and code)\b|^data supporting|manuscript|\bjournal\b|supplementa', re.I)
 
 stats = C.Counter()
@@ -150,6 +156,11 @@ with open(P('index', 'enriched.jsonl'), 'w') as out:
         r = json.loads(line)
         if r['id'] in CENSUS_VARS:
             r['columns'] = CENSUS_VARS[r['id']]['columns'][:300]
+        pk = PEEK.get(r['id'])
+        if pk and not r.get('columns'):
+            r['columns'] = pk['columns']
+            r['sample_rows'] = pk.get('sample_rows')
+            r['peek_url'] = pk['url']
         cols = r.get('columns') or []
         coltext = '' if r['source'] == 'census' else ' '.join((c.get('name') or '') + ' ' + (c.get('description') or '') for c in cols[:60])
         text = ' '.join([r['title'] or '', r.get('description') or '', ' '.join(r.get('keywords') or []), r.get('spatial_text') or '', coltext])
@@ -165,8 +176,10 @@ with open(P('index', 'enriched.jsonl'), 'w') as out:
             r['map_type'] = None
         r['freshness'] = freshness(r)
         r['access'] = access(r)
-        r['contains'] = VALUES.get(r.get('socrata_id')) or (CENSUS_VARS.get(r['id']) or {}).get('contains') or None
-        if r['contains']: d['contains'] = 'census_variable_labels' if r['source'] == 'census' else 'socrata_category_values'
+        pv = [v for vs in ((pk or {}).get('values') or {}).values() for v in vs]
+        r['contains'] = VALUES.get(r.get('socrata_id')) or (CENSUS_VARS.get(r['id']) or {}).get('contains') or (list(dict.fromkeys(pv))[:80] if pv else None)
+        if r['contains']: d['contains'] = 'census_variable_labels' if r['source'] == 'census' else ('socrata_category_values' if r.get('socrata_id') in VALUES else 'csv_peek')
+        if pk and r.get('sample_rows'): d['columns'] = 'csv_peek'
         r['research_like'] = bool(RESEARCH.search(r['title'] or '')) or None
         tbl = (r.get('census') or {}).get('table') or ''
         if r['source'] == 'census':
@@ -189,5 +202,5 @@ with open(P('index', 'enriched.jsonl'), 'w') as out:
         for a in r['access']: stats['access_' + a] += 1
         stats['has_columns'] += bool(cols)
         stats['retitled'] += r['display_title'] != r['title']
-        stats['has_contains'] += bool(r['contains']); stats['research_like'] += bool(r['research_like'])
+        stats['has_contains'] += bool(r['contains']); stats['peeked'] += bool(pk); stats['research_like'] += bool(r['research_like'])
 for k in sorted(stats): print(k, stats[k])

@@ -22,6 +22,9 @@ python3 -I scripts/socrata_harvest.py raw/socrata.jsonl data.cityofnewyork.us,da
 
 # Category values (Measure/Topic/Cause columns) for Socrata datasets, used by enrich.py
 python3 -I scripts/fetch_values.py index/enriched.jsonl raw/socrata_values.jsonl
+# Census variable labels and a peek inside data.gov CSVs (first 64KB: columns, category values, sample rows)
+python3 -I scripts/fetch_census_vars.py index/enriched.jsonl raw/census_vars.jsonl
+python3 -I scripts/peek_csv.py . raw/csv_peek.jsonl   # resumable; rerun until nothing is left
 # Merge into one record per search result, then rule-based enrichment
 python3 -I scripts/merge.py .
 python3 -I scripts/enrich.py .
