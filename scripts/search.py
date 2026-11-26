@@ -93,11 +93,17 @@ def search(db, q, n=10, mode='hybrid', model=None, overrides=None):
             # filter inside SQL so state-specific matches are not crowded out by other states
             rows = db.execute("""SELECT fts.rowid FROM fts JOIN records r ON r.rowid = fts.rowid
                                  WHERE fts MATCH ? AND (',' || r.states || ',' LIKE ? OR r.states = 'US')
-                                 ORDER BY bm25(fts, 4.0, 1.0, 0.25) LIMIT 300""", (fq, '%,' + p['state'] + ',%')).fetchall()
+                                 ORDER BY bm25(fts, 4.0, 1.0, 0.6) LIMIT 300""", (fq, '%,' + p['state'] + ',%')).fetchall()
         else:
-            rows = db.execute('SELECT rowid FROM fts WHERE fts MATCH ? ORDER BY bm25(fts, 4.0, 1.0, 0.25) LIMIT 300', (fq,)).fetchall()
+            rows = db.execute('SELECT rowid FROM fts WHERE fts MATCH ? ORDER BY bm25(fts, 4.0, 1.0, 0.6) LIMIT 300', (fq,)).fetchall()
         for i, (rid,) in enumerate(rows):
             ranks.setdefault(rid, {})['kw'] = i + 1
+        if len(toks) > 1:
+            # results containing ALL topic words get an extra vote, so 'asthma prevalence' beats 'autism prevalence'
+            aq = ' AND '.join('"%s"' % w for w in toks)
+            arows = db.execute('SELECT rowid FROM fts WHERE fts MATCH ? ORDER BY bm25(fts, 4.0, 1.0, 0.6) LIMIT 100', (aq,)).fetchall()
+            for i, (rid,) in enumerate(arows):
+                ranks.setdefault(rid, {})['all'] = i + 1
     has_vec = db.execute('SELECT count(*) FROM vec').fetchone()[0] > 0 if mode != 'keyword' else False
     if mode in ('hybrid', 'vector') and has_vec:
         if model is None:
@@ -131,8 +137,9 @@ def search(db, q, n=10, mode='hybrid', model=None, overrides=None):
         r = recs[rid]
         score = sum(1.0 / (60 + v) for v in rk.values())
         why = []
+        if 'all' in rk: why.append('contains all your key words')
         if 'kw' in rk and 'vec' in rk: why.append('matches your words and meaning')
-        elif 'kw' in rk: why.append('matches your words')
+        elif 'kw' in rk or 'all' in rk: why.append('matches your words')
         else: why.append('similar in meaning')
         st = r.get('states') or []
         if p['state']:
@@ -161,7 +168,8 @@ def search(db, q, n=10, mode='hybrid', model=None, overrides=None):
         if r.get('columns'): score *= 1.1
         if r.get('map_type') and not p['map']: score *= 0.85
         if p['map'] and r.get('map_type'): score *= 1.3; why.append('map data')
-        score *= 1 + 0.03 * math.log1p(r.get('popularity') or 0)
+        if r.get('supporting_file'): score *= 0.5
+        score *= 1 + 0.07 * math.log1p(r.get('popularity') or 0)  # well-used datasets rank higher
         out.append((score, r, why, rk))
     out.sort(key=lambda x: -x[0])
     return p, [dict(score=round(s, 5), why=w, ranks=rk, record=r) for s, r, w, rk in out[:n]], hidden

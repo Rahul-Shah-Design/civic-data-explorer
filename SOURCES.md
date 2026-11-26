@@ -27,6 +27,7 @@ Many federal agencies also publish into data.gov, so before harvesting a new sou
 ## Next: local and state portals
 
 - [ ] All remaining Socrata portals (expand from the 15 above)
+- [ ] State portals and health departments not on data.gov (e.g. Ohio: data.ohio.gov, Ohio Department of Health). Found in agent testing: "asthma in Ohio" returned no Ohio-specific sources.
 - [ ] ArcGIS Hub (many cities and counties publish only here)
 - [ ] State CKAN portals not harvested by data.gov
 - [ ] OpenDataSoft and other portal platforms

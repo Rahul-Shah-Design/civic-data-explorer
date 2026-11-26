@@ -150,6 +150,23 @@ if os.path.exists(P('raw', 'csv_peek.jsonl')):
             PEEK[x['id']] = x
 RESEARCH = re.compile(r'scihub|\bet al\b|^dataset ?[-:]|supporting dataset|^data (for|from|and code)\b|^data supporting|manuscript|\bjournal\b|supplementa', re.I)
 
+ABSTRACT = re.compile(r"\b(we (found|show|examined|investigated|report|hypothesi[sz]ed)|our (results|findings|study)|in this study|here we|background|objectives?:|methods?:|conclusions?:|were (obtained|recruited|enrolled|randomi[sz]ed)|in mice|murine|patients with|randomi[sz]ed|participants|cohort study|associated with the following publication|this dataset is associated with|doi\.org/10\.)", re.I)
+SUPPORTING = re.compile(r'(?<![a-z])(footnotes?|look_?up|lookup table|codebook|data dictionary|variable (list|definitions)|readme)(?![a-z])', re.I)
+
+def research_like(r):
+    if RESEARCH.search(r['title'] or ''):
+        return 'title_pattern'
+    d = (r.get('description') or '')[:1500]
+    if re.search(r'associated with the following publication|this dataset is associated with', d, re.I):
+        return 'linked_to_publication'
+    if len({m.group(0).lower() for m in ABSTRACT.finditer(d)}) >= 2:
+        return 'description_reads_like_abstract'
+    t = r['title'] or ''
+    if (len(t.split()) >= 9 and (r.get('popularity') or 0) <= 5 and r.get('series_count', 1) == 1
+            and re.search(r'\b(role of|effects? of|associations? (of|between)|in (mice|rats)|murine|induced|susceptib|pathophysiolog|exposure to|a (randomized|pilot) )', t, re.I)):
+        return 'title_reads_like_paper'
+    return None
+
 stats = C.Counter()
 with open(P('index', 'enriched.jsonl'), 'w') as out:
     for line in open(P('index', 'records.jsonl')):
@@ -180,7 +197,10 @@ with open(P('index', 'enriched.jsonl'), 'w') as out:
         r['contains'] = VALUES.get(r.get('socrata_id')) or (CENSUS_VARS.get(r['id']) or {}).get('contains') or (list(dict.fromkeys(pv))[:80] if pv else None)
         if r['contains']: d['contains'] = 'census_variable_labels' if r['source'] == 'census' else ('socrata_category_values' if r.get('socrata_id') in VALUES else 'csv_peek')
         if pk and r.get('sample_rows'): d['columns'] = 'csv_peek'
-        r['research_like'] = bool(RESEARCH.search(r['title'] or '')) or None
+        rl = research_like(r)
+        r['research_like'] = bool(rl) or None
+        if rl: d['research_like'] = rl
+        r['supporting_file'] = bool(SUPPORTING.search(r['title'] or '')) or None
         tbl = (r.get('census') or {}).get('table') or ''
         if r['source'] == 'census':
             if tbl.startswith('B99') or re.match(r'(allocation|imputation) of', r['title'] or '', re.I):

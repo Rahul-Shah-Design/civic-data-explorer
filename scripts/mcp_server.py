@@ -48,9 +48,9 @@ def _compact(r, why):
         'publisher': r.get('publisher'),
         'covers': 'all states' if r.get('states') == ['US'] else (', '.join(r.get('states') or []) or 'unknown'),
         'levels': r.get('geo_levels') or [],
-        'years': None if not cy[0] else (str(cy[0]) if cy[0] == cy[1] else '%s-%s' % (cy[0], cy[1])),
+        'years': 'not listed by publisher' if not cy[0] else (str(cy[0]) if cy[0] == cy[1] else '%s-%s' % (cy[0], cy[1])),
         'freshness': r.get('freshness'),
-        'access': r.get('access'),
+        'access': ['not listed by publisher'] if r.get('access') == ['unknown'] else r.get('access'),
         'why': why,
     }
     if r.get('series_count', 1) > 1:
@@ -61,6 +61,8 @@ def _compact(r, why):
         out['column_count'] = len(r['columns'])
     if r.get('contains'):
         out['contains'] = r['contains'][:8]
+    if r.get('research_like'):
+        out['note'] = 'Looks like data from a single research study, not an ongoing data series.'
     return out
 
 
