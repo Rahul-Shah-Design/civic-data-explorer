@@ -35,6 +35,7 @@ STOP = set('a an the in of by for to and or on at with from is are was what whic
 # Value matching: how much a match on a value inside the data counts, and how close it must be (cosine distance)
 VAL_WEIGHT = 0.3
 VAL_MAX_DIST = 0.22
+VAL_GATE = True  # a value must also share a topic word with the question
 QUERY_PREFIX = 'Represent this sentence for searching relevant passages: '  # bge retrieval prefix
 
 
@@ -132,9 +133,12 @@ def search(db, q, n=10, mode='hybrid', model=None, overrides=None):
             vrows = db.execute('SELECT v.rowid, v.distance, x.text, x.rowids FROM vec_vals v JOIN vals x ON x.vid = v.rowid '
                                'WHERE v.embedding MATCH ? AND k = 60', (sqlite_vec.serialize_float32([float(x) for x in qv]),)).fetchall()
             seen = 0
+            stems = {w[:5] for w in toks if len(w) >= 4}
             for vid, dist, text, rids in vrows:
                 if dist > VAL_MAX_DIST:  # only close matches count
                     continue
+                if VAL_GATE and not stems & {w[:5] for w in re.findall(r'[a-z]+', text.lower()) if len(w) >= 4}:
+                    continue  # semantically close but shares no topic word: usually noise
                 for rid in json.loads(rids):
                     if 'val' not in ranks.get(rid, {}):
                         seen += 1

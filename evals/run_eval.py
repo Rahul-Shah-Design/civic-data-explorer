@@ -32,8 +32,8 @@ def main():
         from fastembed import TextEmbedding
         model = TextEmbedding(db.execute("SELECT v FROM meta WHERE k='model'").fetchone()[0])
         print('%-22s %6s %6s %7s %6s  %s' % ('setting', 'hit@1', 'hit@5', 'hit@10', 'MRR', 'PLACES rank for "asthma rates in Ohio"'))
-        for w, dmax in [(0, 0), (0.15, 0.2), (0.3, 0.2), (0.3, 0.25), (0.5, 0.2), (0.5, 0.25), (1.0, 0.2), (1.0, 0.3)]:
-            S.VAL_WEIGHT, S.VAL_MAX_DIST = w, dmax
+        for w, dmax, gate in [(0, 0, True), (1.0, 0.3, False), (0.5, 0.3, True), (1.0, 0.3, True), (1.0, 0.35, True), (1.0, 0.4, True), (1.5, 0.35, True)]:
+            S.VAL_WEIGHT, S.VAL_MAX_DIST, S.VAL_GATE = w, dmax, gate
             c = collections.Counter()
             for q in Q:
                 if q['category'] == 'no_answer':
@@ -44,7 +44,7 @@ def main():
                 c['n'] += 1; c['h1'] += rank == 1; c['h5'] += bool(rank and rank <= 5); c['h10'] += rank is not None; c['rr'] += 1.0 / rank if rank else 0
             top = [h['record']['display_title'] for h in S.search(db, 'asthma rates in Ohio', 20, 'hybrid', model)[1]]
             pr = next((i + 1 for i, t in enumerate(top) if t.startswith('PLACES')), None)
-            label = 'values off' if w == 0 else 'weight %.2f dist %.2f' % (w, dmax)
+            label = 'values off' if w == 0 else 'w %.2f d %.2f %s' % (w, dmax, 'gated' if gate else 'ungated')
             print('%-22s %6d %6d %7d %6.2f  %s' % (label, c['h1'], c['h5'], c['h10'], c['rr'] / c['n'], pr or 'not in top 20'), flush=True)
         return
     for mode in a.modes.split(','):
