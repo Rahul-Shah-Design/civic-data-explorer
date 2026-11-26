@@ -124,6 +124,19 @@ def search(db, q, n=10, mode='hybrid', model=None, overrides=None):
             rows = [r_ for r_ in rows if r_[0] in ok][:300]
         for i, (rid, dist) in enumerate(rows):
             ranks.setdefault(rid, {})['vec'] = i + 1
+        # values inside datasets (e.g. 'Current asthma among adults') matched directly against the question
+        if db.execute("SELECT count(*) FROM sqlite_master WHERE name='vec_vals'").fetchone()[0]:
+            vrows = db.execute('SELECT v.rowid, v.distance, x.text, x.rowids FROM vec_vals v JOIN vals x ON x.vid = v.rowid '
+                               'WHERE v.embedding MATCH ? AND k = 60', (sqlite_vec.serialize_float32([float(x) for x in qv]),)).fetchall()
+            seen = 0
+            for vid, dist, text, rids in vrows:
+                if dist > 0.35:  # cosine distance: only close matches count
+                    continue
+                for rid in json.loads(rids):
+                    if 'val' not in ranks.get(rid, {}):
+                        seen += 1
+                        ranks.setdefault(rid, {})['val'] = seen
+                        ranks[rid]['val_text'] = text
     if not ranks:
         return p, [], 0
     ids = list(ranks)
@@ -135,12 +148,13 @@ def search(db, q, n=10, mode='hybrid', model=None, overrides=None):
     out, hidden = [], 0
     for rid, rk in ranks.items():
         r = recs[rid]
-        score = sum(1.0 / (60 + v) for v in rk.values())
+        score = sum(1.0 / (60 + v) for k, v in rk.items() if k != 'val_text')
         why = []
         if 'all' in rk: why.append('contains all your key words')
+        if 'val' in rk: why.append('has data on "%s"' % rk['val_text'][:80])
         if 'kw' in rk and 'vec' in rk: why.append('matches your words and meaning')
         elif 'kw' in rk or 'all' in rk: why.append('matches your words')
-        else: why.append('similar in meaning')
+        elif 'vec' in rk: why.append('similar in meaning')
         st = r.get('states') or []
         if p['state']:
             if st and p['state'] not in st and 'US' not in st:
@@ -172,7 +186,7 @@ def search(db, q, n=10, mode='hybrid', model=None, overrides=None):
         score *= 1 + 0.07 * math.log1p(r.get('popularity') or 0)  # well-used datasets rank higher
         out.append((score, r, why, rk))
     out.sort(key=lambda x: -x[0])
-    return p, [dict(score=round(s, 5), why=w, ranks=rk, record=r) for s, r, w, rk in out[:n]], hidden
+    return p, [dict(score=round(s, 5), why=w, ranks={k: v for k, v in rk.items() if k != 'val_text'}, record=r) for s, r, w, rk in out[:n]], hidden
 
 
 def url_of(r):

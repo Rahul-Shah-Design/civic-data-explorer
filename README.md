@@ -47,6 +47,13 @@ pip install fastembed sqlite-vec
 python3 scripts/build_index.py index/enriched.jsonl index/search.db
 ```
 
+Then index the values found inside datasets (measures, topics, causes) as their own search targets:
+
+```bash
+python3 -I scripts/values_list.py .                          # builds index/values.jsonl (pipeline machine)
+python scripts/index_values.py index/search.db index/values.jsonl   # embeds ~35k values (laptop)
+```
+
 Resumable: if it stops, run the same command again. Output is one SQLite file with the records, a keyword (FTS5) index and 384-dimension bge-small embeddings (sqlite-vec).
 
 ## Search
