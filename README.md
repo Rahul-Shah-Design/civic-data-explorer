@@ -34,3 +34,12 @@ Output: `index/enriched.jsonl`, one record per search result with `display_title
 - Merged index: 108,507 search results (99,581 data.gov, 7,848 Census tables, 1,078 Socrata-only). 8,734 have column dictionaries.
 
 `prototype/index.html` is a fake-data clickable prototype of the search experience.
+
+## Build the search index (run on a laptop, not a 2-core cloud box)
+
+```bash
+pip install fastembed sqlite-vec
+python3 scripts/build_index.py index/enriched.jsonl index/search.db
+```
+
+Resumable: if it stops, run the same command again. Output is one SQLite file with the records, a keyword (FTS5) index and 384-dimension bge-small embeddings (sqlite-vec).
