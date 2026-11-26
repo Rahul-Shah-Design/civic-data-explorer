@@ -43,3 +43,11 @@ python3 scripts/build_index.py index/enriched.jsonl index/search.db
 ```
 
 Resumable: if it stops, run the same command again. Output is one SQLite file with the records, a keyword (FTS5) index and 384-dimension bge-small embeddings (sqlite-vec).
+
+## Search
+
+```bash
+python scripts/search.py index/search.db "asthma rates by county in Ohio"
+python scripts/search.py index/search.db "evictions in chicago since 2020" --n 5 --json   # agent-friendly output
+python scripts/search.py index/search.db "..." --mode keyword   # or vector, hybrid (default)
+```

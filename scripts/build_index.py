@@ -72,6 +72,7 @@ def main():
     ap.add_argument('db')
     ap.add_argument('--limit', type=int, default=0)
     ap.add_argument('--batch', type=int, default=4096, help='records per database commit')
+    ap.add_argument('--no-embed', action='store_true', help='build records + keyword index only')
     ap.add_argument('--workers', type=int, default=0, help='embedding processes; 0 = one per CPU core')
     a = ap.parse_args()
 
@@ -82,6 +83,8 @@ def main():
     load_records(db, a.src, a.limit)
     total = db.execute('SELECT count(*) FROM records').fetchone()[0]
     print('records', total, flush=True)
+    if a.no_embed:
+        return
 
     model = TextEmbedding(MODEL)
     done = db.execute('SELECT count(*) FROM vec').fetchone()[0]
