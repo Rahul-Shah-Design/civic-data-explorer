@@ -1,0 +1,864 @@
+[
+ {
+  "qid": "q01",
+  "question": "car crashes in New York City",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:motor-vehicle-collisions-crashes",
+    "title": "Motor Vehicle Collisions - Crashes",
+    "publisher": "City of New York"
+   }
+  ]
+ },
+ {
+  "qid": "q02",
+  "question": "restaurant health inspection grades NYC",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:dohmh-new-york-city-restaurant-inspection-results",
+    "title": "DOHMH New York City Restaurant Inspection Results",
+    "publisher": "City of New York"
+   }
+  ]
+ },
+ {
+  "qid": "q03",
+  "question": "complaints people make to the city in NYC",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:311-service-requests-from-2010-to-present",
+    "title": "311 Service Requests from 2020 to Present",
+    "publisher": "City of New York"
+   }
+  ]
+ },
+ {
+  "qid": "q04",
+  "question": "taxi rides in new york",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:2024-yellow-taxi-trip-data",
+    "title": "Yellow Taxi Trip Data",
+    "publisher": "City of New York"
+   },
+   {
+    "id": "dg:2024-green-taxi-trip-data",
+    "title": "Green Taxi Trip Data",
+    "publisher": "City of New York"
+   }
+  ]
+ },
+ {
+  "qid": "q05",
+  "question": "arrests made by NYPD this year",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:nypd-arrest-data-year-to-date",
+    "title": "NYPD Arrest Data (Year to Date)",
+    "publisher": "City of New York"
+   }
+  ]
+ },
+ {
+  "qid": "q06",
+  "question": "crime in Chicago",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:crimes-2001-to-present",
+    "title": "Crimes - 2001 to Present",
+    "publisher": "City of Chicago"
+   }
+  ]
+ },
+ {
+  "qid": "q07",
+  "question": "food safety inspections at Chicago restaurants",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:food-inspections",
+    "title": "Food Inspections",
+    "publisher": "City of Chicago"
+   }
+  ]
+ },
+ {
+  "qid": "q08",
+  "question": "how much do Chicago city employees get paid",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:current-employee-names-salaries-and-position-titles",
+    "title": "Current Employee Names, Salaries, and Position Titles",
+    "publisher": "City of Chicago"
+   }
+  ]
+ },
+ {
+  "qid": "q09",
+  "question": "uber and lyft rides in Chicago",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:transportation-network-providers-trips-2025",
+    "title": "Transportation Network Providers - Trips (2025-)",
+    "publisher": "City of Chicago"
+   },
+   {
+    "id": "dg:transportation-network-providers-trips-2023-2024",
+    "title": "Transportation Network Providers - Trips (2023-2024)",
+    "publisher": "City of Chicago"
+   },
+   {
+    "id": "dg:transportation-network-providers-trips-2018-2022",
+    "title": "Transportation Network Providers - Trips (2018 - 2022)",
+    "publisher": "City of Chicago"
+   }
+  ]
+ },
+ {
+  "qid": "q10",
+  "question": "business licenses issued in Chicago",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:business-licenses",
+    "title": "Business Licenses",
+    "publisher": "City of Chicago"
+   }
+  ]
+ },
+ {
+  "qid": "q11",
+  "question": "Austin animal shelter adoptions",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:austin-animal-center-outcomes",
+    "title": "Austin Animal Center Outcomes",
+    "publisher": "City of Austin"
+   }
+  ]
+ },
+ {
+  "qid": "q12",
+  "question": "construction permits issued in Austin",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:issued-construction-permits",
+    "title": "Issued Construction Permits",
+    "publisher": "City of Austin"
+   }
+  ]
+ },
+ {
+  "qid": "q13",
+  "question": "rent prices by neighborhood in Seattle",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:apartment-market-rent-prices-by-census-tract",
+    "title": "Apartment Market Rent Prices by Census Tract",
+    "publisher": "City of Seattle"
+   }
+  ]
+ },
+ {
+  "qid": "q14",
+  "question": "traffic collisions in Seattle",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:sdot-collisions-all-years",
+    "title": "SDOT Collisions All Years",
+    "publisher": "City of Seattle"
+   }
+  ]
+ },
+ {
+  "qid": "q15",
+  "question": "San Francisco fire and ambulance dispatch calls",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:fire-department-and-emergency-medical-services-dispatched-calls-for-service",
+    "title": "Fire Department and Emergency Medical Services Dispatched Calls for Service",
+    "publisher": "City of San Francisco"
+   }
+  ]
+ },
+ {
+  "qid": "q16",
+  "question": "SFO airport passenger numbers",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:air-traffic-passenger-statistics",
+    "title": "Air Traffic Passenger Statistics",
+    "publisher": "City of San Francisco"
+   }
+  ]
+ },
+ {
+  "qid": "q17",
+  "question": "what do San Francisco city workers earn",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:employee-compensation",
+    "title": "Employee Compensation",
+    "publisher": "City of San Francisco"
+   }
+  ]
+ },
+ {
+  "qid": "q18",
+  "question": "police incident reports San Francisco",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:police-department-incident-reports-2018-to-present",
+    "title": "Police Department Incident Reports: 2018 to Present",
+    "publisher": "City of San Francisco"
+   }
+  ]
+ },
+ {
+  "qid": "q19",
+  "question": "crime data for Washington DC",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:crime-incidents-in-2026",
+    "title": "Crime Incidents",
+    "publisher": "District of Columbia"
+   },
+   {
+    "id": "dg:crime-incidents-in-the-last-30-days",
+    "title": "Crime Incidents in the Last 30 Days",
+    "publisher": "District of Columbia"
+   }
+  ]
+ },
+ {
+  "qid": "q20",
+  "question": "where can I vote in DC",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:find-a-vote-center-and-ballot-drop-box",
+    "title": "Find a Vote Center and Ballot Drop Box",
+    "publisher": "District of Columbia"
+   }
+  ]
+ },
+ {
+  "qid": "q21",
+  "question": "traffic crashes in Montgomery County Maryland",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:crash-reporting-drivers-data",
+    "title": "Crash Reporting - Drivers Data",
+    "publisher": "Montgomery County of Maryland"
+   },
+   {
+    "id": "dg:crash-reporting-incidents-data",
+    "title": "Crash Reporting - Incidents Data",
+    "publisher": "Montgomery County of Maryland"
+   },
+   {
+    "id": "dg:crash-reporting-non-motorists-data",
+    "title": "Crash Reporting - Non-Motorists Data",
+    "publisher": "Montgomery County of Maryland"
+   }
+  ]
+ },
+ {
+  "qid": "q22",
+  "question": "liquor sales in Montgomery County MD",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:warehouse-and-retail-sales",
+    "title": "Warehouse and Retail Sales",
+    "publisher": "Montgomery County of Maryland"
+   }
+  ]
+ },
+ {
+  "qid": "q23",
+  "question": "Denver traffic accidents",
+  "category": "local",
+  "expected": [
+   {
+    "id": "soc:data.colorado.gov:cpwf-cznk",
+    "title": "City of Denver Traffic Accidents",
+    "publisher": "Business Intelligence Center of CO"
+   }
+  ]
+ },
+ {
+  "qid": "q24",
+  "question": "property parcels in Lake County Illinois",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:lakecountyparcels",
+    "title": "LakeCountyParcels",
+    "publisher": "Lake County, Illinois"
+   }
+  ]
+ },
+ {
+  "qid": "q25",
+  "question": "NYC subway train delays",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:mta-subway-trains-delayed-beginning-2020",
+    "title": "MTA Subway Trains Delayed: Beginning 2020",
+    "publisher": "State of New York"
+   }
+  ]
+ },
+ {
+  "qid": "q26",
+  "question": "subway ridership by hour in New York",
+  "category": "local",
+  "expected": [
+   {
+    "id": "dg:mta-subway-hourly-ridership-beginning-2025",
+    "title": "MTA Subway Hourly Ridership: Beginning 2025",
+    "publisher": "State of New York"
+   },
+   {
+    "id": "dg:mta-subway-hourly-ridership-2020-2024",
+    "title": "MTA Subway Hourly Ridership",
+    "publisher": "State of New York"
+   }
+  ]
+ },
+ {
+  "qid": "q27",
+  "question": "electric vehicles registered in Washington state",
+  "category": "state",
+  "expected": [
+   {
+    "id": "dg:electric-vehicle-population-data",
+    "title": "Electric Vehicle Population Data",
+    "publisher": "State of Washington"
+   }
+  ]
+ },
+ {
+  "qid": "q28",
+  "question": "EV registrations in Connecticut",
+  "category": "state",
+  "expected": [
+   {
+    "id": "dg:electric-vehicle-registration-data",
+    "title": "Electric Vehicle Registration Data",
+    "publisher": "State of Connecticut"
+   }
+  ]
+ },
+ {
+  "qid": "q29",
+  "question": "online sports betting revenue Connecticut",
+  "category": "state",
+  "expected": [
+   {
+    "id": "dg:selected-online-sport-wagering-data",
+    "title": "Selected Online Sport Wagering Data",
+    "publisher": "State of Connecticut"
+   }
+  ]
+ },
+ {
+  "qid": "q30",
+  "question": "Powerball winning numbers history",
+  "category": "state",
+  "expected": [
+   {
+    "id": "dg:lottery-powerball-winning-numbers-beginning-2010",
+    "title": "Lottery Powerball Winning Numbers: Beginning 2010",
+    "publisher": "State of New York"
+   }
+  ]
+ },
+ {
+  "qid": "q31",
+  "question": "Oregon liquor store sales",
+  "category": "state",
+  "expected": [
+   {
+    "id": "dg:olcc-distilled-spirits-sales-liquor-store-sales",
+    "title": "OLCC Distilled Spirits Sales: Liquor Store Sales",
+    "publisher": "State of Oregon"
+   },
+   {
+    "id": "dg:olcc-distilled-spirits-sales-revenue-distribution-summary",
+    "title": "OLCC Distilled Spirits Sales: Revenue Distribution Summary",
+    "publisher": "State of Oregon"
+   },
+   {
+    "id": "dg:olcc-distilled-spirits-sales-revenue-distribution-for-cities-and-counties",
+    "title": "OLCC Distilled Spirits Sales: Revenue Distribution for Cities and Counties",
+    "publisher": "State of Oregon"
+   },
+   {
+    "id": "dg:olcc-distilled-spirits-sales",
+    "title": "OLCC Distilled Spirits Sales",
+    "publisher": "State of Oregon"
+   }
+  ]
+ },
+ {
+  "qid": "q32",
+  "question": "cannabis business licenses in Oregon",
+  "category": "state",
+  "expected": [
+   {
+    "id": "dg:olcc-cannabis-business-licenses-endorsements-61c7c",
+    "title": "OLCC Cannabis Business Licenses & Endorsements",
+    "publisher": "State of Oregon"
+   }
+  ]
+ },
+ {
+  "qid": "q33",
+  "question": "list of public schools in California",
+  "category": "state",
+  "expected": [
+   {
+    "id": "dg:california-public-schools-2024-25",
+    "title": "California Public Schools",
+    "publisher": "State of California"
+   }
+  ]
+ },
+ {
+  "qid": "q34",
+  "question": "road traffic injuries in California",
+  "category": "state",
+  "expected": [
+   {
+    "id": "dg:road-traffic-injuries",
+    "title": "Road Traffic Injuries",
+    "publisher": "State of California"
+   }
+  ]
+ },
+ {
+  "qid": "q35",
+  "question": "Washington state school test scores",
+  "category": "state",
+  "expected": [
+   {
+    "id": "dg:report-card-assessment-data-2025-26-school-year",
+    "title": "Report Card Assessment Data School",
+    "publisher": "State of Washington"
+   }
+  ]
+ },
+ {
+  "qid": "q36",
+  "question": "Colorado population projections",
+  "category": "state",
+  "expected": [
+   {
+    "id": "soc:data.colorado.gov:q5vp-adf3",
+    "title": "Population Projections in Colorado",
+    "publisher": "Business Intelligence Center of CO"
+   }
+  ]
+ },
+ {
+  "qid": "q37",
+  "question": "Maryland property tax assessments",
+  "category": "state",
+  "expected": [
+   {
+    "id": "dg:maryland-real-property-assessments_hidden-property-owner-names",
+    "title": "Maryland Real Property Assessments_Hidden Property Owner Names",
+    "publisher": "State of Maryland"
+   },
+   {
+    "id": "dg:maryland-real-property-assessments-fields-reference",
+    "title": "Maryland Real Property Assessments: Fields Reference",
+    "publisher": "State of Maryland"
+   }
+  ]
+ },
+ {
+  "qid": "q38",
+  "question": "asthma rates by county in Ohio",
+  "category": "federal",
+  "expected": [
+   {
+    "id": "dg:places-local-data-for-better-health-county-data-2023-release",
+    "title": "PLACES: Local Data for Better Health, County Data release",
+    "publisher": "U.S. Department of Health & Human Services"
+   },
+   {
+    "id": "dg:places-local-data-for-better-health-census-tract-data-2024-release",
+    "title": "PLACES: Local Data for Better Health, Census Tract Data release",
+    "publisher": "U.S. Department of Health & Human Services"
+   }
+  ]
+ },
+ {
+  "qid": "q39",
+  "question": "leading causes of death in the US",
+  "category": "federal",
+  "expected": [
+   {
+    "id": "dg:nchs-leading-causes-of-death-united-states",
+    "title": "NCHS - Leading Causes of Death: United States",
+    "publisher": "U.S. Department of Health & Human Services"
+   }
+  ]
+ },
+ {
+  "qid": "q40",
+  "question": "what pharmacies pay for prescription drugs",
+  "category": "federal",
+  "expected": [
+   {
+    "id": "dg:nadac-national-average-drug-acquisition-cost-2026",
+    "title": "NADAC (National Average Drug Acquisition Cost)",
+    "publisher": "U.S. Department of Health & Human Services"
+   },
+   {
+    "id": "dg:nadac-comparison",
+    "title": "NADAC Comparison",
+    "publisher": "U.S. Department of Health & Human Services"
+   }
+  ]
+ },
+ {
+  "qid": "q41",
+  "question": "daily temperature history from weather stations",
+  "category": "federal",
+  "expected": [
+   {
+    "id": "dg:global-historical-climatology-network-daily-ghcn-daily-version-3",
+    "title": "Global Historical Climatology Network - Daily (GHCN-Daily), Version 3",
+    "publisher": "National Oceanic and Atmospheric Administration, Department of Commerce"
+   },
+   {
+    "id": "dg:global-historical-climatology-network-daily-ghcn-daily-version-2-version-superseded",
+    "title": "Global Historical Climatology Network - Daily (GHCN-Daily), Version 2 (Version Superseded)",
+    "publisher": "National Oceanic and Atmospheric Administration, Department of Commerce"
+   },
+   {
+    "id": "dg:global-surface-summary-of-the-day-gsod",
+    "title": "Global Surface Summary of the Day - GSOD",
+    "publisher": "National Oceanic and Atmospheric Administration, Department of Commerce"
+   }
+  ]
+ },
+ {
+  "qid": "q42",
+  "question": "national park visitor numbers",
+  "category": "federal",
+  "expected": [
+   {
+    "id": "dg:nps-visitor-use-statistics-data-package-2024",
+    "title": "NPS Visitor Use Statistics Data Package",
+    "publisher": "Department of the Interior"
+   }
+  ]
+ },
+ {
+  "qid": "q43",
+  "question": "map of Superfund sites",
+  "category": "federal",
+  "expected": [
+   {
+    "id": "dg:npl-superfund-site-boundaries-epa-9a10b",
+    "title": "NPL Superfund Site Boundaries (EPA)",
+    "publisher": "U.S. Environmental Protection Agency"
+   }
+  ]
+ },
+ {
+  "qid": "q44",
+  "question": "fruit and vegetable prices",
+  "category": "federal",
+  "expected": [
+   {
+    "id": "dg:fruit-and-vegetable-prices",
+    "title": "Fruit and Vegetable Prices",
+    "publisher": "Department of Agriculture"
+   }
+  ]
+ },
+ {
+  "qid": "q45",
+  "question": "obesity rates by state",
+  "category": "federal",
+  "expected": [
+   {
+    "id": "dg:nutrition-physical-activity-and-obesity-behavioral-risk-factor-surveillance-system",
+    "title": "Nutrition, Physical Activity, and Obesity - Behavioral Risk Factor Surveillance System",
+    "publisher": "U.S. Department of Health & Human Services"
+   },
+   {
+    "id": "dg:nutrition-physical-activity-and-obesity-youth-risk-behavior-surveillance-system-08b36",
+    "title": "Nutrition, Physical Activity, and Obesity - Youth Risk Behavior Surveillance System",
+    "publisher": "U.S. Department of Health & Human Services"
+   },
+   {
+    "id": "dg:nutrition-physical-activity-and-obesity-youth-risk-behavior-surveillance-system",
+    "title": "Nutrition, Physical Activity, and Obesity - Youth Risk Behavior Surveillance System",
+    "publisher": "U.S. Department of Health & Human Services"
+   },
+   {
+    "id": "dg:nutrition-physical-activity-and-obesity-national-immunization-survey-breastfeeding",
+    "title": "Nutrition, Physical Activity, and Obesity - National Immunization Survey (Breastfeeding)",
+    "publisher": "U.S. Department of Health & Human Services"
+   },
+   {
+    "id": "dg:national-obesity-by-state",
+    "title": "National Obesity By State",
+    "publisher": "Lake County, Illinois"
+   }
+  ]
+ },
+ {
+  "qid": "q46",
+  "question": "FBI crime statistics by county",
+  "category": "federal",
+  "expected": [
+   {
+    "id": "dg:uniform-crime-reporting-program-data-county-level-detailed-arrest-and-offense-data-un-2016",
+    "title": "Uniform Crime Reporting Program Data: County-Level Detailed Arrest and Offense Data, United States",
+    "publisher": "Department of Justice"
+   }
+  ]
+ },
+ {
+  "qid": "q47",
+  "question": "national register of historic places",
+  "category": "federal",
+  "expected": [
+   {
+    "id": "dg:national-register-of-historic-places",
+    "title": "National Register of Historic Places",
+    "publisher": "Department of the Interior"
+   },
+   {
+    "id": "dg:national-register-of-historic-places-b3502",
+    "title": "National Register of Historic Places",
+    "publisher": "State of New York"
+   },
+   {
+    "id": "dg:national-register-of-historic-places-5b6f3",
+    "title": "National Register of Historic Places",
+    "publisher": "City of Chicago"
+   }
+  ]
+ },
+ {
+  "qid": "q48",
+  "question": "how many kids live in poverty in my county",
+  "category": "census",
+  "expected": [
+   {
+    "id": "census:B17001:c284aab2",
+    "title": "Poverty Status in the Past 12 Months by Sex by Age (B17001)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:B17006:283511f7",
+    "title": "Poverty Status in the Past 12 Months of Related Children Under 18 Years by Family Type by Age of Related Children Under 18 Years (B17006)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:B17020:850ed399",
+    "title": "Poverty Status in the Past 12 Months by Age (B17020)",
+    "publisher": "U.S. Census Bureau"
+   }
+  ]
+ },
+ {
+  "qid": "q49",
+  "question": "renters spending more than 30% of income on rent",
+  "category": "census",
+  "expected": [
+   {
+    "id": "census:B25070:2dea2c34",
+    "title": "Gross Rent as a Percentage of Household Income in the Past 12 Months (B25070)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:B25106:543b4fab",
+    "title": "Tenure by Housing Costs as a Percentage of Household Income in the Past 12 Months (B25106)",
+    "publisher": "U.S. Census Bureau"
+   }
+  ]
+ },
+ {
+  "qid": "q50",
+  "question": "median household income by county",
+  "category": "census",
+  "expected": [
+   {
+    "id": "census:B19013:bc2916ed",
+    "title": "Median Household Income in the Past 12 Months (in 2025 Inflation-Adjusted Dollars) (B19013)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:B19013:6a00dd63",
+    "title": "Median Household Income in the Past 12 Months (in 2024 Inflation-Adjusted Dollars) (B19013)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:B19013:0cb26082",
+    "title": "MEDIAN HOUSEHOLD INCOME IN THE PAST 12 MONTHS (IN 2013 INFLATION-ADJUSTED DOLLARS) (B19013)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:B19013:91d56842",
+    "title": "MEDIAN HOUSEHOLD INCOME IN THE PAST 12 MONTHS (IN 2021 INFLATION-ADJUSTED DOLLARS) (B19013)",
+    "publisher": "U.S. Census Bureau"
+   }
+  ]
+ },
+ {
+  "qid": "q51",
+  "question": "how many people don't have health insurance",
+  "category": "census",
+  "expected": [
+   {
+    "id": "census:B27001:ba291702",
+    "title": "Health Insurance Coverage Status by Sex by Age (B27001)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:B27010:3a1e9166",
+    "title": "Types of Health Insurance Coverage by Age (B27010)",
+    "publisher": "U.S. Census Bureau"
+   }
+  ]
+ },
+ {
+  "qid": "q52",
+  "question": "how long people's commutes to work are",
+  "category": "census",
+  "expected": [
+   {
+    "id": "census:B08303:677005cf",
+    "title": "Travel Time to Work (B08303)",
+    "publisher": "U.S. Census Bureau"
+   }
+  ]
+ },
+ {
+  "qid": "q53",
+  "question": "languages spoken at home",
+  "category": "census",
+  "expected": [
+   {
+    "id": "census:B16001:4b45c9e9",
+    "title": "Language Spoken at Home by Ability to Speak English for the Population 5 Years and Over (B16001)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:C16001:894e2e72",
+    "title": "Language Spoken at Home for the Population 5 Years and Over (C16001)",
+    "publisher": "U.S. Census Bureau"
+   }
+  ]
+ },
+ {
+  "qid": "q54",
+  "question": "school district boundary map",
+  "category": "map",
+  "expected": [
+   {
+    "id": "dg:2020-cartographic-boundary-file-kml-current-unified-school-district-for-louisiana-1-500000",
+    "title": "Cartographic Boundary File (KML), Current Unified School District by state, 1:500,000",
+    "publisher": "U.S. Census Bureau, Department of Commerce"
+   },
+   {
+    "id": "dg:2025-cartographic-boundary-file-kml-unified-school-district-for-pennsylvania-1-500000",
+    "title": "Cartographic Boundary File (KML), Unified School District by state, 1:500,000",
+    "publisher": "U.S. Census Bureau, Department of Commerce"
+   },
+   {
+    "id": "dg:tiger-line-shapefile-2025-state-kansas-ks-unified-school-districts",
+    "title": "TIGER/Line: Unified School Districts",
+    "publisher": "U.S. Census Bureau, Department of Commerce"
+   },
+   {
+    "id": "dg:tiger-line-shapefile-2020-state-georgia-unified-school-districts",
+    "title": "TIGER/Line: Georgia, Unified School Districts",
+    "publisher": "U.S. Census Bureau, Department of Commerce"
+   },
+   {
+    "id": "dg:2022-cartographic-boundary-file-shp-current-elementary-school-district-for-south-carolina-",
+    "title": "2022 Cartographic Boundary File (SHP), Current Elementary School District by state, 1:500,000",
+    "publisher": "U.S. Census Bureau, Department of Commerce"
+   },
+   {
+    "id": "dg:2022-cartographic-boundary-file-shp-current-secondary-school-district-for-maine-1-500000",
+    "title": "Cartographic Boundary File (SHP), Current Secondary School District by state, 1:500,000",
+    "publisher": "U.S. Census Bureau, Department of Commerce"
+   }
+  ]
+ },
+ {
+  "qid": "q55",
+  "question": "census tract boundaries in Maryland",
+  "category": "map",
+  "expected": [
+   {
+    "id": "dg:census-tracts",
+    "title": "Census Tracts",
+    "publisher": "State of Maryland"
+   },
+   {
+    "id": "dg:2022-cartographic-boundary-file-kml-current-census-tract-for-north-dakota-1-500000",
+    "title": "Cartographic Boundary File (KML), Current Census Tract by state, 1:500,000",
+    "publisher": "U.S. Census Bureau, Department of Commerce"
+   },
+   {
+    "id": "dg:2025-cartographic-boundary-file-kml-census-tract-for-pennsylvania-1-500000",
+    "title": "Cartographic Boundary File (KML), Census Tract by state, 1:500,000",
+    "publisher": "U.S. Census Bureau, Department of Commerce"
+   },
+   {
+    "id": "dg:tiger-line-shapefile-2020-state-california-census-tracts",
+    "title": "TIGER/Line: California, Census Tracts",
+    "publisher": "U.S. Census Bureau, Department of Commerce"
+   },
+   {
+    "id": "dg:tiger-line-shapefile-2025-state-alaska-ak-census-tract",
+    "title": "TIGER/Line: Census Tract",
+    "publisher": "U.S. Census Bureau, Department of Commerce"
+   }
+  ]
+ },
+ {
+  "qid": "q56",
+  "question": "eviction filings in Chicago",
+  "category": "no_answer",
+  "expected": []
+ },
+ {
+  "qid": "q57",
+  "question": "hospital star ratings",
+  "category": "no_answer",
+  "expected": []
+ }
+]
