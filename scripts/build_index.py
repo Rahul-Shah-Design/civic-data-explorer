@@ -20,6 +20,8 @@ def embed_text(r):
     parts = [r['display_title'], (r.get('description') or '')[:500]]
     if univ:
         parts.append('Universe: ' + univ)
+    if r.get('contains'):
+        parts.append('Contains: ' + '; '.join(r['contains'])[:600])
     if cols:
         parts.append('Columns: ' + cols)
     return '. '.join(p for p in parts if p)

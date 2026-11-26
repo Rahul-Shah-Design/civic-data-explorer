@@ -20,6 +20,8 @@ python3 -I scripts/group_pass2.py clean/datagov_flagged.jsonl clean/datagov_grou
 # Socrata portals (column dictionaries)
 python3 -I scripts/socrata_harvest.py raw/socrata.jsonl data.cityofnewyork.us,data.cityofchicago.org,data.sfgov.org,data.seattle.gov,data.lacity.org,data.austintexas.gov,data.cdc.gov,data.ny.gov,data.texas.gov,data.wa.gov,data.ct.gov,opendata.maryland.gov,data.pa.gov,data.colorado.gov,data.montgomerycountymd.gov
 
+# Category values (Measure/Topic/Cause columns) for Socrata datasets, used by enrich.py
+python3 -I scripts/fetch_values.py index/enriched.jsonl raw/socrata_values.jsonl
 # Merge into one record per search result, then rule-based enrichment
 python3 -I scripts/merge.py .
 python3 -I scripts/enrich.py .
@@ -72,3 +74,10 @@ python scripts/search.py index/search.db "..." --mode keyword   # or vector, hyb
 ```
 
 3. Fully quit and reopen Claude Desktop. The tools `search_datasets` and `get_dataset` appear under the tools menu.
+
+## Update an existing index without rebuilding
+
+```bash
+python scripts/update_index.py index/search.db index/patch.jsonl
+```
+Replaces changed records and re-embeds only those whose text changed.

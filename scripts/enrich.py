@@ -126,6 +126,19 @@ def access(r):
     if not a and f & {'PDF', 'Web page'}: a.append('documents_only')
     return a or ['unknown']
 
+# Category values (Measure, Topic, Cause...) fetched by scripts/fetch_values.py, keyed by Socrata id
+VALUES = {}
+if os.path.exists(P('raw', 'socrata_values.jsonl')):
+    for line in open(P('raw', 'socrata_values.jsonl')):
+        x = json.loads(line)
+        vals = []
+        for k, v in x['values'].items():
+            if k != '_errors':
+                vals += v
+        if vals:
+            VALUES[x['socrata_id']] = list(dict.fromkeys(vals))[:80]
+RESEARCH = re.compile(r'scihub|\bet al\b|^dataset ?[-:]|supporting dataset|^data (for|from|and code)\b|^data supporting|manuscript|\bjournal\b|supplementa', re.I)
+
 stats = C.Counter()
 with open(P('index', 'enriched.jsonl'), 'w') as out:
     for line in open(P('index', 'records.jsonl')):
@@ -145,12 +158,16 @@ with open(P('index', 'enriched.jsonl'), 'w') as out:
             r['map_type'] = None
         r['freshness'] = freshness(r)
         r['access'] = access(r)
+        r['contains'] = VALUES.get(r.get('socrata_id')) or None
+        if r['contains']: d['contains'] = 'socrata_category_values'
+        r['research_like'] = bool(RESEARCH.search(r['title'] or '')) or None
         r['derived'] = {k: ('rule:' + v if v else None) for k, v in d.items()}
         kw = ', '.join((r.get('keywords') or [])[:15])
         colnames = ', '.join((c.get('name') or c.get('field')) for c in cols[:40])
         univ = (r.get('census') or {}).get('universe')
         r['search_text'] = '\n'.join(x for x in [r['display_title'], (r.get('description') or '')[:1500],
                                                   'Universe: ' + univ if univ else '', 'Keywords: ' + kw if kw else '',
+                                                  'Contains: ' + '; '.join(r['contains']) if r['contains'] else '',
                                                   'Columns: ' + colnames if colnames else '', 'Publisher: ' + (r.get('publisher') or '')] if x)
         out.write(json.dumps(r) + '\n')
         stats['records'] += 1
@@ -160,4 +177,5 @@ with open(P('index', 'enriched.jsonl'), 'w') as out:
         for a in r['access']: stats['access_' + a] += 1
         stats['has_columns'] += bool(cols)
         stats['retitled'] += r['display_title'] != r['title']
+        stats['has_contains'] += bool(r['contains']); stats['research_like'] += bool(r['research_like'])
 for k in sorted(stats): print(k, stats[k])

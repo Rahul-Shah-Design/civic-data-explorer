@@ -154,6 +154,7 @@ def search(db, q, n=10, mode='hybrid', model=None, overrides=None):
         if 'documents_only' in acc: score *= 0.55
         elif 'unknown' in acc: score *= 0.75
         if r.get('freshness') == 'stale': score *= 0.85
+        if r.get('research_like'): score *= 0.6
         if r.get('columns'): score *= 1.1
         if r.get('map_type') and not p['map']: score *= 0.85
         if p['map'] and r.get('map_type'): score *= 1.3; why.append('map data')
