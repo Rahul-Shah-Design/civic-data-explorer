@@ -51,3 +51,24 @@ python scripts/search.py index/search.db "asthma rates by county in Ohio"
 python scripts/search.py index/search.db "evictions in chicago since 2020" --n 5 --json   # agent-friendly output
 python scripts/search.py index/search.db "..." --mode keyword   # or vector, hybrid (default)
 ```
+
+## Use it from Claude Desktop (MCP server)
+
+1. `pip install -r requirements.txt`
+2. Open Claude Desktop → Settings → Developer → Edit Config, and add (Windows paths shown; use your own):
+
+```json
+{
+  "mcpServers": {
+    "civic-data-explorer": {
+      "command": "C:\\Users\\YOU\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "args": [
+        "C:\\path\\to\\civic-data-explorer\\scripts\\mcp_server.py",
+        "C:\\path\\to\\civic-data-explorer\\index\\search.db"
+      ]
+    }
+  }
+}
+```
+
+3. Fully quit and reopen Claude Desktop. The tools `search_datasets` and `get_dataset` appear under the tools menu.

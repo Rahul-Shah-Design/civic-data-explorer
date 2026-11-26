@@ -70,7 +70,7 @@ def fts_query(q, p):
 
 
 def open_db(path):
-    db = sqlite3.connect(path)
+    db = sqlite3.connect(path, check_same_thread=False)  # MCP server calls tools from worker threads
     try:
         import sqlite_vec
         db.enable_load_extension(True); sqlite_vec.load(db); db.enable_load_extension(False)
@@ -79,8 +79,13 @@ def open_db(path):
     return db
 
 
-def search(db, q, n=10, mode='hybrid', model=None):
+def search(db, q, n=10, mode='hybrid', model=None, overrides=None):
     p = parse(q)
+    for k, v in (overrides or {}).items():
+        if v is not None:
+            p[k] = v
+    if (overrides or {}).get('state') and not (overrides or {}).get('place'):
+        p['place'] = NAME_OF.get(p['state'], p['state'])
     fq, toks = fts_query(q, p)
     ranks = {}  # rowid -> {'kw': rank, 'vec': rank}
     if mode in ('hybrid', 'keyword') and fq:
@@ -114,7 +119,7 @@ def search(db, q, n=10, mode='hybrid', model=None):
         for i, (rid, dist) in enumerate(rows):
             ranks.setdefault(rid, {})['vec'] = i + 1
     if not ranks:
-        return p, []
+        return p, [], 0
     ids = list(ranks)
     recs = {}
     for chunk in range(0, len(ids), 500):
