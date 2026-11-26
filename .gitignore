@@ -4,3 +4,5 @@ clean/
 *.cursor
 __pycache__/
 index/
+*.gz
+*.db
