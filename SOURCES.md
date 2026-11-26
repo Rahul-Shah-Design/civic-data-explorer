@@ -47,6 +47,10 @@ Many federal agencies also publish into data.gov, so before harvesting a new sou
 - [ ] EIA (energy)
 - [ ] USDA ERS and NASS Quick Stats (food, agriculture)
 
+## Next: work and occupations
+
+- [ ] O*NET (Department of Labor): occupation profiles, skills, tasks, work context and related occupations. Downloadable database plus O*NET Web Services API (free registration). Index each occupation and data table as a search result.
+
 ## Next: education
 
 - [ ] NCES (Common Core of Data, IPEDS)
