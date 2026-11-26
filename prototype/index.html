@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open Data Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: a reference librarian: plain, exact, quietly confident.
+   IDEA: a library catalog card that translates the agency's jargon for you.
+   PICTURE: the working search itself, with the "what we understood" line and result cards.
+   COLOUR and TYPE: white, ink, one red accent, slate for meaning matches; Source Serif 4 titles, Inter body.
+   LAYOUT: search band on top, results left, explanation and filters right; stacks below 900px. */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#10191e);--ink:light-dark(#121212,#e9eef1);--mute:light-dark(#5b6670,#9fb0bb);--red:#e3120b;--slate:light-dark(#2e6f8e,#7fc0dc);--panel:light-dark(#e3ecf0,#18252c);--line:light-dark(#d5dde2,#2a3a43);--card:light-dark(#ffffff,#132027)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
+.band{padding:clamp(24px,3.5vw,48px) max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+.tab{display:inline-block;background:var(--red);color:#fff;font-size:13px;font-weight:600;padding:3px 10px;margin-bottom:14px}
+h1{font:600 clamp(32px,4.4vw,48px)/1.05 "Source Serif 4",Georgia,serif;margin:0 0 8px;text-wrap:balance}
+.lede{color:var(--mute);margin:0 0 22px;max-width:62ch}
+form{display:flex;gap:8px;flex-wrap:wrap}
+#q{flex:1 1 320px;font:inherit;font-size:18px;padding:14px 16px;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:0}
+#q:focus,button:focus-visible{outline:3px solid var(--slate);outline-offset:2px}
+button{font:inherit;cursor:pointer;min-height:44px}
+.go{background:var(--ink);color:var(--bg);border:0;padding:0 22px;font-weight:600}
+.tries{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+.tries span{font-size:14px;color:var(--mute)}
+.chip{border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:6px 12px;font-size:14px;min-height:36px;border-radius:18px}
+.chip:hover{border-color:var(--ink)}
+.understood{background:var(--panel);padding:14px 16px;margin-top:20px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.understood b{font-size:14px;margin-right:4px}
+.tok{background:var(--card);border:1px solid var(--line);padding:4px 6px 4px 10px;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.tok i{font-style:normal;color:var(--mute)}
+.tok button{min-height:28px;min-width:28px;border:0;background:none;color:var(--mute);font-size:16px}
+.modes{display:flex;border-bottom:2px solid var(--ink);margin-bottom:18px;overflow-x:auto}
+.modes button{background:none;border:0;padding:10px 16px;color:var(--mute);font-weight:600;border-bottom:4px solid transparent;margin-bottom:-2px;white-space:nowrap}
+.modes button[aria-selected=true]{color:var(--ink);border-color:var(--red)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:32px;align-items:start}
+.count{font-size:14px;color:var(--mute);margin:0 0 12px}
+.card{border-top:1px solid var(--ink);padding:18px 0 22px}
+.card h3{font:600 23px/1.2 "Source Serif 4",Georgia,serif;margin:0 0 4px}
+.meta{font-size:14px;color:var(--mute);margin:0 0 10px}
+.badge{display:inline-block;font-size:12px;font-weight:600;padding:1px 7px;margin-left:6px;border:1px solid currentColor}
+.badge.bad{color:var(--red)}.badge.ok{color:var(--slate)}
+.card p{margin:0 0 12px;max-width:70ch}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);margin:0 0 14px;border:1px solid var(--line)}
+.facts div{background:var(--card);padding:8px 10px}
+.facts dt{font-size:13px;color:var(--mute)}.facts dd{margin:0;font-size:14px;font-weight:500}
+.why{font-size:14px;margin:0 0 10px}
+.why ul{list-style:none;padding:0;margin:6px 0 0;display:grid;gap:4px}
+.tag{display:inline-block;width:78px;font-size:12px;font-weight:600;padding:1px 0;text-align:center;margin-right:8px}
+.t-meaning{background:var(--slate);color:var(--bg)}.t-keyword{border:1px solid var(--ink)}.t-fit{background:var(--panel)}.t-warn{color:var(--red);border:1px solid var(--red)}
+.caveat{font-size:14px;border-left:3px solid var(--red);padding-left:10px}
+.cols{display:flex;flex-wrap:wrap;gap:6px;font-size:13px;align-items:center;margin-bottom:12px}
+.colhead{font-size:14px;margin:0 0 6px}.colhead span{color:var(--mute);font-weight:400}
+.scroll{overflow-x:auto}
+.dict{border-collapse:collapse;width:100%;font-size:14px;margin-bottom:6px}
+.dict th{text-align:left;font-size:13px;font-weight:600;color:var(--mute);padding:4px 10px 4px 0;border-bottom:1px solid var(--line)}
+.dict td{padding:5px 10px 5px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.dict tr.rel td:first-child{box-shadow:inset 3px 0 var(--red);padding-left:9px}
+.dict tr.auto td:first-child{font-style:italic}
+.dict code{background:var(--panel);padding:1px 5px;font-size:12.5px;white-space:nowrap}
+.dict .ex{color:var(--mute);max-width:220px}
+.colnote{font-size:13px;color:var(--mute);margin:0 0 12px}
+.actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:14px;color:var(--mute)}
+.linkbtn{background:none;border:0;color:var(--slate);text-decoration:underline;padding:0;font-size:14px}
+pre{background:var(--panel);padding:12px;font-size:12.5px;overflow-x:auto;margin:12px 0 0;white-space:pre-wrap;word-break:break-word}
+.kw{padding:14px 0;border-top:1px solid var(--line)}
+.kw a{color:#1a5fb4;font-size:17px;word-break:break-all}
+.kw p{font-size:14px;margin:4px 0;color:var(--mute)}
+aside{position:sticky;top:16px;display:grid;gap:18px}
+.box{background:var(--panel);padding:16px}
+.box h4{margin:0 0 8px;font-size:15px}
+.box p,.box li{font-size:14px;margin:0 0 6px}
+.box ul{padding-left:18px;margin:0}
+label.tg{display:flex;gap:10px;align-items:center;font-size:14px;min-height:36px;cursor:pointer}
+label.tg input{width:18px;height:18px;accent-color:var(--red)}
+.hidden-note{font-size:14px;color:var(--mute);border:1px dashed var(--line);padding:12px;margin-top:8px}
+.empty{padding:30px 0;color:var(--mute)}
+.note{font-size:13px;color:var(--mute);margin-top:10px}
+@media(max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}aside{position:static;order:-1}.facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (prefers-reduced-motion:no-preference){.card,.kw{animation:in .25s ease both}@keyframes in{from{opacity:0;transform:translateY(4px)}}}
+</style>
+</head>
+<body>
+<header class="band">
+ <div class="wrap">
+  <span class="tab">Prototype</span>
+  <h1>Find public data by asking in plain English</h1>
+  <p class="lede">Ask a question. Get the datasets that can answer it, with the agency jargon translated: where it covers, which years, how fresh, and what to watch out for.</p>
+  <form id="f" role="search">
+   <input id="q" type="search" autocomplete="off" aria-label="Describe the data you need" placeholder="e.g. asthma rates by county in Ohio">
+   <button class="go" type="submit">Search</button>
+  </form>
+  <div class="tries" id="tries"><span>Try:</span></div>
+  <div class="understood" id="und" hidden></div>
+  <p class="note">Sample catalog of 18 made-up records modeled on real federal, state and city datasets.</p>
+ </div>
+</header>
+<main class="band" style="padding-top:0">
+ <div class="wrap">
+  <div class="modes" role="tablist">
+   <button role="tab" id="m-smart" aria-selected="true">Plain-language search</button>
+   <button role="tab" id="m-kw" aria-selected="false">Keyword search, like data.gov today</button>
+  </div>
+  <div class="grid">
+   <section id="results" aria-live="polite"></section>
+   <aside>
+    <div class="box" id="filters">
+     <h4>Clean up results</h4>
+     <label class="tg"><input type="checkbox" id="hideStale"> Hide stale (no update in 3+ years)</label>
+     <label class="tg" style="color:var(--mute);cursor:default"><input type="checkbox" id="hideBroken" disabled> Hide broken download links (coming soon)</label>
+     <label class="tg"><input type="checkbox" id="group" checked> Group yearly copies into one result</label>
+    </div>
+    <div class="box">
+     <h4>How to read a match</h4>
+     <ul style="list-style:none;padding:0">
+      <li><span class="tag t-meaning">Meaning</span>Same idea, different words</li>
+      <li><span class="tag t-keyword">Keyword</span>Exact word in the metadata</li>
+      <li><span class="tag t-fit">Fit</span>Right place, level or years</li>
+      <li><span class="tag t-warn">Watch</span>Mismatch or quality issue</li>
+     </ul>
+    </div>
+    <div class="box">
+     <h4>What the real build adds</h4>
+     <p>Real data.gov and city portal metadata, vector embeddings instead of this synonym list, and an eval set to prove it beats keyword search.</p>
+    </div>
+   </aside>
+  </div>
+ </div>
+</main>
+<script>
+{
+const TODAY=new Date('2026-11-25');
+const ST={};"Alabama:AL,Alaska:AK,Arizona:AZ,Arkansas:AR,California:CA,Colorado:CO,Connecticut:CT,Delaware:DE,Florida:FL,Georgia:GA,Hawaii:HI,Idaho:ID,Illinois:IL,Indiana:IN,Iowa:IA,Kansas:KS,Kentucky:KY,Louisiana:LA,Maine:ME,Maryland:MD,Massachusetts:MA,Michigan:MI,Minnesota:MN,Mississippi:MS,Missouri:MO,Montana:MT,Nebraska:NE,Nevada:NV,New Hampshire:NH,New Jersey:NJ,New Mexico:NM,New York:NY,North Carolina:NC,North Dakota:ND,Ohio:OH,Oklahoma:OK,Oregon:OR,Pennsylvania:PA,Rhode Island:RI,South Carolina:SC,South Dakota:SD,Tennessee:TN,Texas:TX,Utah:UT,Vermont:VT,Virginia:VA,Washington:WA,West Virginia:WV,Wisconsin:WI,Wyoming:WY".split(',').forEach(s=>{const[n,a]=s.split(':');ST[n.toLowerCase()]={name:n,abbr:a}});
+const CITY={chicago:['Chicago','IL'],philadelphia:['Philadelphia','PA'],houston:['Houston','TX'],detroit:['Detroit','MI'],flint:['Flint','MI'],columbus:['Columbus','OH'],cleveland:['Cleveland','OH']};
+const STNAME=Object.fromEntries(Object.values(ST).map(s=>[s.abbr,s.name]));
+const CON={
+ asthma:{label:'asthma',t:['asthma','breathing','respiratory','inhaler']},
+ poverty:{label:'poverty',t:['poverty','poor','low income','low-income','below poverty']},
+ children:{label:'children under 18',t:['kids','children','child','youth','minors']},
+ eviction:{label:'eviction filings',t:['eviction','evictions','evicted','kicked out']},
+ housing:{label:'housing costs',t:['rent','rents','renters','housing','landlord']},
+ hospital:{label:'hospitals',t:['hospital','hospitals']},
+ quality:{label:'quality ratings',t:['quality','rating','ratings','stars','best','safest']},
+ lead:{label:'lead contamination',t:['lead','lead pipes']},
+ water:{label:'drinking water',t:['water','drinking water','tap water']},
+ school:{label:'schools',t:['school','schools']},
+ overdose:{label:'drug overdoses',t:['overdose','overdoses','opioid','opioids','fentanyl','drug deaths']},
+ deaths:{label:'deaths',t:['deaths','death','mortality','died','dying']}
+};
+const GEO=[['tract',['tract','tracts','neighborhood','neighborhoods']],['county',['county','counties','my county']],['city',['city','near ','in chicago','in philadelphia','in detroit']],['state',['by state','each state','states','statewide']],['school',['school','schools']],['facility',['hospital','hospitals','clinic']]];
+const D=[
+{id:1,name:'Local health estimates by county',pub:'CDC (PLACES)',desc:'Estimated share of adults with 40 health conditions and behaviors, including current asthma, for every U.S. county.',geo:['county'],st:'US',yrs:[2022,2022],upd:'2025-08',fmt:['CSV','API'],ok:1,ver:6,con:['asthma','deaths'],cav:'Model-based estimates from a national survey, not counts of diagnosed patients. Compare counties, not exact numbers.',cols:['StateAbbr','LocationName','Measure','Data_Value','Low_Confidence_Limit','TotalPopulation'],raw:{title:'PLACES: Local Data for Better Health, County Data 2025 release',notes:'This dataset contains model-based county estimates. PLACES covers the entire United States—50 states and the District of Columbia—at county, place, census tract, and ZIP Code Tabulation Area levels. It represents a first-of-its kind effort to release information uniformly on this large scale for local areas at multiple geographic levels. Estimates were provided by the Centers for Disease Control and Prevention (CDC), Division of Population Health, Epidemiology and Surveillance Branch...',keywords:['brfss','places','500 cities','sae','mrp','chronic disease'],spatial:'United States',temporal:'2022-01-01/2022-12-31'}},
+{id:2,name:'Local health estimates by census tract',pub:'CDC (PLACES)',desc:'The same 40 health measures as the county file, down to neighborhood-sized census tracts.',geo:['tract'],st:'US',yrs:[2022,2022],upd:'2025-08',fmt:['CSV','API'],ok:1,ver:6,con:['asthma'],cav:'Small areas have wide uncertainty. Check the confidence limits before ranking tracts.',cols:['StateAbbr','CountyName','LocationName','Measure','Data_Value'],raw:{title:'PLACES: Local Data for Better Health, Census Tract Data 2025 release',notes:'This dataset contains model-based census tract level estimates. PLACES covers the entire United States...',keywords:['brfss','places','census tract','sae'],spatial:'United States',temporal:'2022-01-01/2022-12-31'}},
+{id:3,name:'Asthma clinic locations, Ohio',pub:'Ohio Dept. of Health',desc:'Addresses of asthma clinics funded by a 2011 state grant.',geo:['facility'],st:['OH'],yrs:[2011,2011],upd:'2013-02',fmt:['SHP'],ok:0,ver:1,con:['asthma'],cav:'A list of clinics, not asthma rates. Last updated 2013.',cols:['CLINIC_NM','ADDR1','CNTY_FIPS','GRANT_YR'],raw:{title:'ODH_AsthmaClinics_2011_shp',notes:'Asthma clinic point locations Ohio county FY11.',keywords:['asthma','ohio','county','shp'],spatial:'Ohio',temporal:'2011'}},
+{id:4,name:'Chronic disease rates by state, yearly',pub:'CDC (BRFSS)',desc:'Yearly share of adults in each state reporting asthma, diabetes, smoking and more, back to 2011.',geo:['state'],st:'US',yrs:[2011,2024],upd:'2025-11',fmt:['CSV','API'],ok:1,ver:1,con:['asthma','deaths'],cav:'State level only. Good for trends, not for comparing counties.',cols:['Year','LocationAbbr','Question','Data_Value','Sample_Size'],raw:{title:'Behavioral Risk Factor Surveillance System (BRFSS) Prevalence Data (2011 to present)',notes:'BRFSS combined land line and cell phone prevalence data. BRFSS is a continuous, state-based surveillance system that collects information about modifiable risk factors for chronic diseases...',keywords:['brfss','prevalence','risk factors','surveillance'],spatial:'United States',temporal:'2011/2024'}},
+{id:5,name:'Poverty by age, every county and neighborhood',pub:'U.S. Census Bureau (ACS)',desc:'How many people live below the poverty line, broken out by age group, including children under 18.',geo:['county','tract','state'],st:'US',yrs:[2009,2023],upd:'2024-12',fmt:['API','CSV'],ok:1,ver:15,con:['poverty','children'],cav:'Each figure is a 5-year average with a margin of error. Small counties can have errors as large as the estimate.',cols:['NAME','GEO_ID','B17001_002E','B17001_002M','B17001_004E','B17001_018E'],raw:{title:'ACS 5-Year Estimates Detailed Tables B17001',notes:'B17001. Poverty Status in the Past 12 Months by Sex by Age. Universe: Population for whom poverty status is determined. Estimates are based on a sample and are subject to sampling variability...',keywords:['acs','b17001','detailed tables','5-year'],spatial:'United States',temporal:'2009/2023'}},
+{id:6,name:'Child poverty estimates by county and school district',pub:'U.S. Census Bureau (SAIPE)',desc:'Yearly estimate of children ages 5 to 17 in poverty for every county and school district. Single-year, so it is more current than the ACS 5-year file.',geo:['county','school','state'],st:'US',yrs:[1989,2023],upd:'2025-01',fmt:['CSV','API'],ok:1,ver:34,con:['poverty','children','school'],cav:'Ages 5 to 17 only, and model-based. Use ACS if you need under-5s.',cols:['Year','State','County','Poverty_5_17','Poverty_5_17_Pct'],raw:{title:'SAIPE State and County Estimates',notes:'Small Area Income and Poverty Estimates (SAIPE) program provides annual estimates of income and poverty statistics for all school districts, counties, and states...',keywords:['saipe','income','poverty','model-based'],spatial:'United States',temporal:'1989/2023'}},
+{id:7,name:'Eviction court filings, Chicago',pub:'City of Chicago',desc:'Every eviction case filed in Cook County court for Chicago addresses, with filing date and census tract.',geo:['city','tract'],st:['IL'],city:'Chicago',yrs:[2010,2026],upd:'2026-10',fmt:['CSV','API'],ok:1,ver:1,con:['eviction','housing'],cav:'Filings, not completed evictions. Many cases are dismissed or settled.',cols:['case_number','filing_date','tract','ward','outcome'],raw:{title:'Eviction_Filings_Cook_Cty_v2',notes:'FED cases Municipal Dept First District.',keywords:['fed','forcible entry','municipal','cook'],spatial:'Chicago',temporal:'2010/2026'}},
+{id:8,name:'Fair market rents by county',pub:'HUD',desc:'What HUD considers typical rent for each county and metro area, by number of bedrooms. Updated every year.',geo:['county'],st:'US',yrs:[1983,2026],upd:'2025-09',fmt:['XLSX','API'],ok:1,ver:43,con:['housing'],cav:'A rent benchmark used for vouchers, not the rents people actually pay.',cols:['fips','areaname','fmr_0','fmr_1','fmr_2','fmr_3'],raw:{title:'FY26 FMR',notes:'Fair Market Rents (FMRs) are used to determine payment standard amounts for the Housing Choice Voucher program...',keywords:['fmr','hcv','section 8'],spatial:'United States',temporal:'1983/2026'}},
+{id:9,name:'311 service requests, Chicago',pub:'City of Chicago',desc:'Every 311 complaint, from potholes to rodents, with location and status.',geo:['city','tract'],st:['IL'],city:'Chicago',yrs:[2018,2026],upd:'2026-11',fmt:['CSV','API'],ok:1,ver:1,con:[],cav:'',cols:['sr_number','sr_type','created_date','status','ward'],raw:{title:'311 Service Requests',notes:'All open 311 service requests and all requests completed since January 1, 2018 for the City of Chicago, including housing complaints...',keywords:['311','service requests','chicago'],spatial:'Chicago',temporal:'2018/2026'}},
+{id:10,name:'Hospital star ratings',pub:'CMS (Care Compare)',desc:'Overall 1 to 5 star quality rating for about 4,500 hospitals, with address, type and ownership.',geo:['facility'],st:'US',yrs:[2026,2026],upd:'2026-10',fmt:['CSV','API'],ok:1,ver:1,con:['hospital','quality'],cav:'Some hospitals, including many small and VA hospitals, have no star rating.',cols:['Facility Name','City/Town','State','Hospital overall rating','Hospital Type'],raw:{title:'Hospital General Information',notes:'A list of all hospitals that have been registered with Medicare. The list includes addresses, phone numbers, hospital type, and overall hospital rating.',keywords:['hospital','medicare','compare'],spatial:'United States',temporal:'2026'}},
+{id:11,name:'Patient survey scores by hospital',pub:'CMS (HCAHPS)',desc:'How patients rated each hospital on communication, cleanliness, quietness and whether they would recommend it.',geo:['facility'],st:'US',yrs:[2025,2026],upd:'2026-10',fmt:['CSV','API'],ok:1,ver:1,con:['hospital','quality'],cav:'Patient experience, not medical outcomes.',cols:['Facility ID','HCAHPS Measure ID','HCAHPS Answer Percent','Number of Completed Surveys'],raw:{title:'Patient survey (HCAHPS) - Hospital',notes:'A list of hospital ratings for the Hospital Consumer Assessment of Healthcare Providers and Systems (HCAHPS)...',keywords:['hcahps','patient experience'],spatial:'United States',temporal:'2025/2026'}},
+{id:12,name:'Hospital locations, Philadelphia',pub:'City of Philadelphia',desc:'Map points for hospitals in Philadelphia.',geo:['facility','city'],st:['PA'],city:'Philadelphia',yrs:[2016,2016],upd:'2017-05',fmt:['GeoJSON'],ok:1,ver:1,con:['hospital'],cav:'Locations only, no quality data. Not updated since 2017.',cols:['NAME','ADDRESS','LAT','LON'],raw:{title:'Hospitals',notes:'Hospitals in Philadelphia.',keywords:['health','hospitals','philadelphia'],spatial:'Philadelphia',temporal:'2016'}},
+{id:13,name:'Drinking water violations by water system',pub:'EPA (SDWIS)',desc:'Health-based violations, including lead and copper rule violations, for every public water system.',geo:['water system','county'],st:'US',yrs:[1993,2026],upd:'2026-07',fmt:['CSV','API'],ok:1,ver:1,con:['lead','water'],cav:'Violations are self-reported by water systems. A clean record is not proof of safe water.',cols:['PWSID','PWS_NAME','VIOLATION_CODE','CONTAMINANT','COMPL_PER_BEGIN'],raw:{title:'SDWIS Federal Reporting Services Violations',notes:'Safe Drinking Water Information System. VIOLATION table. LCR action level exceedances reported under 40 CFR 141...',keywords:['sdwis','pws','lcr','compliance'],spatial:'United States',temporal:'1993/2026'}},
+{id:14,name:'Lead test results in school drinking water, Michigan',pub:'Michigan EGLE',desc:'Lead levels measured at taps and fountains in Michigan schools during the 2016 to 2018 testing program.',geo:['school'],st:['MI'],yrs:[2016,2018],upd:'2019-03',fmt:['XLSX'],ok:1,ver:3,con:['lead','water','school'],cav:'A one-time testing program. Results are from before most remediation.',cols:['District','Building','Fixture','Pb_ppb','Sample_Date'],raw:{title:'SchoolsDW_Pb_Results_FINAL_v3',notes:'Results from voluntary sampling program.',keywords:['pb','ppb','dw','k12'],spatial:'Michigan',temporal:'2016/2018'}},
+{id:15,name:'Overdose deaths by state, monthly',pub:'CDC (NCHS)',desc:'Provisional counts of drug overdose deaths for each state, by month and drug type, including fentanyl.',geo:['state'],st:'US',yrs:[2015,2026],upd:'2026-11',fmt:['CSV','API'],ok:1,ver:1,con:['overdose','deaths'],cav:'Recent months are provisional and usually revised upward.',cols:['State','Year','Month','Indicator','Data Value','Predicted Value'],raw:{title:'VSRR Provisional Drug Overdose Death Counts',notes:'This data visualization presents provisional counts for drug overdose deaths based on a current flow of mortality data in the National Vital Statistics System...',keywords:['nvss','vsrr','provisional','mortality'],spatial:'United States',temporal:'2015/2026'}},
+{id:16,name:'Overdose death rates by county, modeled',pub:'CDC (NCHS)',desc:'Estimated drug poisoning death rates for every county, smoothed so small counties are comparable.',geo:['county'],st:'US',yrs:[2003,2021],upd:'2023-04',fmt:['CSV'],ok:1,ver:1,con:['overdose','deaths'],cav:'Ends in 2021 and is modeled. Use the state file for recent trends.',cols:['FIPS','Year','Model-based Death Rate','Urban/Rural Category'],raw:{title:'NCHS - Drug Poisoning Mortality by County: United States',notes:'This dataset describes drug poisoning deaths at the county level by selected demographic characteristics and includes age-adjusted death rates...',keywords:['nchs','drug poisoning','mortality'],spatial:'United States',temporal:'2003/2021'}},
+{id:17,name:'Opioid prevention grant awards',pub:'HHS',desc:'Federal grants awarded for overdose prevention programs in fiscal year 2019.',geo:['state'],st:'US',yrs:[2019,2019],upd:'2020-01',fmt:['CSV'],ok:1,ver:1,con:['overdose'],cav:'Grant money, not overdose data. Not updated since 2020.',cols:['Recipient','State','Award_Amt','Program'],raw:{title:'FY2019 Overdose Prevention Grant Awards by State',notes:'Grant awards by state, overdose deaths prevention.',keywords:['grants','overdose','deaths','state'],spatial:'United States',temporal:'2019'}},
+{id:18,name:'Census tract boundaries',pub:'U.S. Census Bureau (TIGER)',desc:'Map shapes for every census tract. Needed to map tract-level data.',geo:['tract'],st:'US',yrs:[2020,2025],upd:'2025-09',fmt:['SHP'],ok:1,ver:6,con:[],cav:'',cols:['GEOID','NAME','ALAND','geometry'],raw:{title:'TIGER/Line Shapefile, 2025, Nation, U.S., Census Tracts',notes:'The TIGER/Line shapefiles and related database files (.dbf) are an extract of selected geographic and cartographic information from the U.S. Census Bureau...',keywords:['tiger','tract','county','boundaries'],spatial:'United States',temporal:'2020/2025'}}
+];
+const NCOL={1:22,2:24,3:9,4:27,5:59,6:31,7:14,8:12,9:41,10:38,11:17,12:6,13:46,14:11,15:12,16:9,17:7,18:12};
+const K=['key'];
+const COLMAP={StateAbbr:['State','official',K],LocationName:['County name','official',K],Measure:['Health measure (e.g. current asthma)','official',['asthma']],Data_Value:['Estimated % of adults','official',['asthma','deaths']],Low_Confidence_Limit:['Lower bound of the estimate','official'],TotalPopulation:['Total population','official'],CountyName:['County name','official',K],
+CLINIC_NM:['Clinic name','auto',['asthma']],ADDR1:['Street address','auto'],CNTY_FIPS:['County code (FIPS)','auto',K],GRANT_YR:['Grant year','auto'],
+Year:['Year','official',K],LocationAbbr:['State','official',K],Question:['Survey question (e.g. ever told you have asthma)','official',['asthma']],Sample_Size:['People surveyed','official'],
+NAME:['Place name','official',K],GEO_ID:['Geography ID','official',K],B17001_002E:['People below the poverty line','official',['poverty']],B17001_002M:['Margin of error for the above','official',['poverty']],B17001_004E:['Boys under 5 below poverty','official',['poverty','children']],B17001_018E:['Girls under 5 below poverty','official',['poverty','children']],
+State:['State','official',K],County:['County','official',K],Poverty_5_17:['Children 5 to 17 in poverty','official',['poverty','children']],Poverty_5_17_Pct:['% of children 5 to 17 in poverty','official',['poverty','children']],
+case_number:['Court case number','auto'],filing_date:['Date filed','official',['eviction',...K]],tract:['Census tract','official',K],ward:['City ward','official'],outcome:['Case outcome (dismissed, judgment...)','official',['eviction']],
+fips:['County code (FIPS)','auto',K],areaname:['Area name','official',K],fmr_0:['Typical rent, studio','auto',['housing']],fmr_1:['Typical rent, 1 bedroom','auto',['housing']],fmr_2:['Typical rent, 2 bedroom','auto',['housing']],fmr_3:['Typical rent, 3 bedroom','auto',['housing']],
+sr_number:['Request number','official'],sr_type:['Request type','official'],created_date:['Date created','official',K],status:['Status','official'],
+'Facility Name':['Hospital name','official',['hospital',...K]],'City/Town':['City','official',K],'Hospital overall rating':['Overall star rating, 1 to 5','official',['quality']],'Hospital Type':['Hospital type','official',['hospital']],
+'Facility ID':['Hospital ID','official',K],'HCAHPS Measure ID':['Survey question code','auto',['quality']],'HCAHPS Answer Percent':['% of patients giving this answer','official',['quality']],'Number of Completed Surveys':['Surveys completed','official'],
+ADDRESS:['Address','auto'],LAT:['Latitude','auto'],LON:['Longitude','auto'],
+PWSID:['Water system ID','official',K],PWS_NAME:['Water system name','official',['water']],VIOLATION_CODE:['Violation type code','official'],CONTAMINANT:['Contaminant (lead, copper...)','official',['lead','water']],COMPL_PER_BEGIN:['Violation start date','auto'],
+District:['School district','auto',['school',...K]],Building:['School building','auto',['school']],Fixture:['Tap or fountain tested','auto',['water']],Pb_ppb:['Lead level, parts per billion','auto',['lead']],Sample_Date:['Date tested','auto'],
+Month:['Month','official',K],Indicator:['Drug type or measure','official',['overdose']],'Data Value':['Death count','official',['overdose','deaths']],'Predicted Value':['Count adjusted for late reports','official',['overdose','deaths']],
+FIPS:['County code (FIPS)','official',K],'Model-based Death Rate':['Overdose deaths per 100,000, modeled','official',['overdose','deaths']],'Urban/Rural Category':['Urban or rural','official'],
+Recipient:['Grant recipient','auto'],Award_Amt:['Award amount ($)','auto'],Program:['Program','auto',['overdose']],
+GEOID:['Geography ID','official',K],ALAND:['Land area, square meters','auto'],geometry:['Map shape','official']};
+const EX={StateAbbr:'OH',LocationName:'Franklin',Measure:'Current asthma among adults',Data_Value:'10.9',Low_Confidence_Limit:'10.1',TotalPopulation:'1,323,807',CountyName:'Cuyahoga',CLINIC_NM:'NW OHIO PEDS ASTHMA CTR',ADDR1:'1200 W MAIN ST',CNTY_FIPS:'39049',GRANT_YR:'2011',Year:'2023',LocationAbbr:'OH',Question:'Adults who have ever been told they have asthma',Sample_Size:'11,482',NAME:'Franklin County, Ohio',GEO_ID:'0500000US39049',B17001_002E:'186,204',B17001_002M:'±4,311',B17001_004E:'7,918',B17001_018E:'7,602',State:'OH',County:'Franklin County',Poverty_5_17:'33,415',Poverty_5_17_Pct:'15.8',case_number:'2024-M1-701234',filing_date:'2024-03-18',tract:'17031839100',ward:'27',outcome:'Dismissed',fips:'3904999999',areaname:'Columbus, OH HUD Metro FMR Area',fmr_0:'1,104',fmr_1:'1,236',fmr_2:'1,489',fmr_3:'1,901',sr_number:'SR24-01234567',sr_type:'Rodent Baiting',created_date:'2024-06-02',status:'Completed','Facility Name':'THOMAS JEFFERSON UNIVERSITY HOSPITAL','City/Town':'PHILADELPHIA','Hospital overall rating':'4','Hospital Type':'Acute Care Hospitals','Facility ID':'390174','HCAHPS Measure ID':'H_COMP_1_A_P','HCAHPS Answer Percent':'78','Number of Completed Surveys':'1,214',ADDRESS:'111 S 11TH ST',LAT:'39.9496',LON:'-75.1577',PWSID:'MI0002310',PWS_NAME:'FLINT',VIOLATION_CODE:'57',CONTAMINANT:'Lead and Copper Rule',COMPL_PER_BEGIN:'2015-07-01',District:'Detroit Public Schools',Building:'Cass Tech HS',Fixture:'Drinking fountain, 2nd floor',Pb_ppb:'22',Sample_Date:'2016-09-14',Month:'March','Indicator':'Synthetic opioids, excl. methadone (T40.4)','Data Value':'4,102','Predicted Value':'4,260',FIPS:'39049','Model-based Death Rate':'38.2','Urban/Rural Category':'Large central metro',Recipient:'Ohio Dept of Mental Health',Award_Amt:'4,500,000',Program:'SOR',GEOID:'39049001110',ALAND:'2,314,880',geometry:'MULTIPOLYGON(...)'};
+const TRIES=['asthma rates by county in Ohio','how many kids live in poverty in my county','are evictions going up in Chicago since 2020','best hospitals near Philadelphia','lead in school drinking water in Michigan','overdose deaths by state since 2019'];
+const S={q:'',mode:'smart',removed:new Set(),openCols:new Set()};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+const has=(text,t)=>new RegExp('(^|[^a-z])'+t.replace(/[-]/g,'\\-')+'($|[^a-z])').test(text);
+const rawText=d=>(d.raw.title+' '+d.raw.notes+' '+d.raw.keywords.join(' ')).toLowerCase();
+const monthsOld=d=>{const[y,m]=d.upd.split('-').map(Number);return (TODAY.getFullYear()-y)*12+(TODAY.getMonth()+1-m)};
+const fmtDate=d=>{const[y,m]=d.upd.split('-');return new Date(y,m-1).toLocaleString('en-US',{month:'short',year:'numeric'})};
+function parse(q){
+ const l=' '+q.toLowerCase()+' ',P={concepts:[],place:null,geo:null,years:null};
+ for(const[k,c]of Object.entries(CON)){const hit=c.t.find(t=>has(l,t));if(hit)P.concepts.push({k,hit})}
+ for(const[c,v]of Object.entries(CITY))if(has(l,c)){P.place={label:v[0],abbr:v[1],city:v[0]};break}
+ if(!P.place)for(const[n,s]of Object.entries(ST))if(has(l,n)){P.place={label:s.name,abbr:s.abbr};break}
+ if(!P.place){const m=q.match(/\b([A-Z]{2})\b/);if(m&&STNAME[m[1]])P.place={label:STNAME[m[1]],abbr:m[1]}}
+ for(const[g,ws]of GEO)if(ws.some(w=>l.includes(w))){P.geo=g;break}
+ const y=l.match(/\b(since|after|from)\s+((19|20)\d\d)\b/);const y2=l.match(/\b((19|20)\d\d)\b/);
+ if(y)P.years=[+y[2],TODAY.getFullYear()];else if(y2)P.years=[+y2[1],+y2[1]];
+ if(/going up|rising|trend|over time|increas|decreas|changed/.test(l))P.trend=true;
+ return P}
+function active(P){const R=S.removed;return{concepts:P.concepts.filter(c=>!R.has('c:'+c.k)),place:R.has('place')?null:P.place,geo:R.has('geo')?null:P.geo,years:R.has('years')?null:P.years,trend:P.trend&&!R.has('trend')}}
+function score(d,A){
+ const why=[],rt=rawText(d);let s=0,hidden=null;
+ for(const c of A.concepts){if(!d.con.includes(c.k))continue;s+=3;
+  if(has(rt,c.hit))why.push(['keyword',`“${c.hit}” appears in the metadata`]);
+  else why.push(['meaning',`“${c.hit}” matches ${CON[c.k].label}, though the agency never uses that word`])}
+ if(!s)return null;
+ if(A.place){const cov=d.st==='US'||d.st.includes(A.place.abbr);
+  if(!cov)hidden='doesn’t cover '+A.place.label;
+  else if(A.place.city&&d.city&&d.city!==A.place.city)hidden='covers a different city';
+  else{s+=1;why.push(['fit',d.st==='US'?`Covers all states, including ${A.place.label}`:`Specific to ${d.city||STNAME[d.st[0]]}`])}}
+ if(A.geo){if(d.geo.includes(A.geo)){s+=2;why.push(['fit',`Has ${A.geo}-level rows`])}
+  else{s-=1;why.push(['warn',`You asked for ${A.geo} level; this has ${d.geo.join(', ')} level`])}}
+ if(A.years){if(d.yrs[1]<A.years[0])hidden=hidden||`ends in ${d.yrs[1]}, before ${A.years[0]}`;
+  else{s+=1;why.push(['fit',`Covers ${Math.max(d.yrs[0],A.years[0])} to ${d.yrs[1]}`])}}
+ if(A.trend){if(d.yrs[1]-d.yrs[0]>=3){s+=1;why.push(['fit',`${d.yrs[1]-d.yrs[0]+1} years of data, so you can see a trend`])}else{s-=1;why.push(['warn','Only a single year, so no trend'])}}
+ const stale=monthsOld(d)>=36;if(stale){s-=2;why.push(['warn',`No update since ${fmtDate(d)}`])}
+ return{d,s,why,hidden,stale}}
+function colBlock(d){
+ const want=new Set((S.A?.concepts||[]).map(c=>c.k));
+ const info=c=>{const m=COLMAP[c]||[c,'auto',[]];return{raw:c,label:m[0],src:m[1],tags:m[2]||[],rel:(m[2]||[]).some(t=>want.has(t)),key:(m[2]||[]).includes('key')}};
+ const all=d.cols.map(info).sort((a,b)=>(b.rel-a.rel)||(b.key-a.key));
+ const open=S.openCols.has(d.id),shown=open?all:all.slice(0,4),total=NCOL[d.id]||d.cols.length,more=total-shown.length;
+ const nrel=all.filter(c=>c.rel).length;
+ return `<p class="colhead"><b>Columns</b> <span>${total} total${nrel?`, ${nrel} relevant to your question shown first`:''}</span></p>
+ <div class="scroll"><table class="dict"><thead><tr><th>Column</th><th>Name in the file</th><th>Example</th></tr></thead><tbody>${shown.map(c=>`<tr class="${c.rel?'rel':''}${c.src==='auto'?' auto':''}"><td>${esc(c.label)}</td><td><code>${esc(c.raw)}</code></td><td class="ex">${esc(EX[c.raw]??'')}</td></tr>`).join('')}</tbody></table></div>
+ <p class="colnote">${!open&&more>0?`<button class="linkbtn" data-cols="${d.id}">Show all ${total} columns</button> · `:''}${open&&more>0?`Sample lists ${shown.length} of ${total}; the real index would show all, with a filter box. · `:''}Plain: official label. <i>Italic</i>: our guess, check the raw name.</p>`}
+function card(r){const d=r.d;
+ const geo=d.geo.map(g=>g[0].toUpperCase()+g.slice(1)).join(', ');
+ const cover=d.st==='US'?'All states':(d.city||d.st.map(a=>STNAME[a]).join(', '));
+ const yrs=d.yrs[0]===d.yrs[1]?d.yrs[0]:d.yrs[0]+' to '+d.yrs[1];
+ const fresh=r.stale?'<span class="badge bad">Stale</span>':monthsOld(d)<=3?'<span class="badge ok">Fresh</span>':'';
+ const raw={title:d.raw.title,publisher:d.pub,notes:d.raw.notes,keyword:d.raw.keywords,modified:d.upd,spatial:d.raw.spatial,temporal:d.raw.temporal,distribution:d.fmt.map(f=>({format:f,downloadURL:d.ok?'https://example.gov/files/'+d.id+'.'+f.toLowerCase():'https://example.gov/files/'+d.id+' (404)'}))};
+ return `<article class="card"><h3>${esc(d.name)}</h3>
+ <p class="meta">${esc(d.pub)} · Updated ${fmtDate(d)}${fresh}</p>
+ <p>${esc(d.desc)}</p>
+ <dl class="facts"><div><dt>Geography</dt><dd>${esc(geo)}</dd></div><div><dt>Covers</dt><dd>${esc(cover)}</dd></div><div><dt>Years</dt><dd>${yrs}</dd></div><div><dt>Formats</dt><dd>${d.fmt.join(', ')}</dd></div></dl>
+ <div class="why"><b>Why it matched</b><ul>${r.why.map(([t,x])=>`<li><span class="tag t-${t}">${{meaning:'Meaning',keyword:'Keyword',fit:'Fit',warn:'Watch'}[t]}</span>${esc(x)}</li>`).join('')}</ul></div>
+ ${d.cav?`<p class="caveat"><b>Before you use it:</b> ${esc(d.cav)}</p>`:''}
+ ${colBlock(d)}
+ <div class="actions"><button class="linkbtn" data-raw="${d.id}">Show raw government metadata</button>${S.group&&d.ver>1?`<span>${d.ver} yearly releases grouped here</span>`:''}</div>
+ <pre id="raw${d.id}" hidden>${esc(JSON.stringify(raw,null,2))}</pre></article>`}
+function kwView(q){
+ const stop=new Set('a an the in of by my to for and or is are how many do does live near since going up from with what which where who at on rates rate best'.split(' '));
+ const words=q.toLowerCase().match(/[a-z0-9]+/g)?.filter(w=>!stop.has(w))||[];
+ let rows=D.map(d=>{const t=rawText(d);const hits=words.filter(w=>t.includes(w));return{d,hits}}).filter(r=>r.hits.length).sort((a,b)=>b.hits.length-a.hits.length);
+ let html=`<p class="count">${rows.length} result${rows.length===1?'':'s'} for literal words: ${words.map(w=>'<b>'+esc(w)+'</b>').join(', ')||'none'}</p>`;
+ if(!rows.length)html+='<p class="empty">No datasets found. The words you used aren’t the words the agencies used.</p>';
+ html+=rows.map(({d})=>{const ex=d.ver>1?Array.from({length:Math.min(d.ver,3)},(_,i)=>d.raw.title.replace(/20\d\d/,m=>m-i)):[d.raw.title];
+  return ex.map(t=>`<div class="kw"><a href="#">${esc(t)}</a><p>${esc(d.raw.notes.slice(0,190))}…</p><p>${esc(d.pub.split(' (')[0])} · ${d.fmt.join(' ')}</p></div>`).join('')}).join('');
+ return html+(rows.length?'<p class="note">Same catalog, same query. Note the duplicate yearly copies, missing coverage info, and nothing telling you which result actually fits.</p>':'')}
+function render(){
+ const q=S.q.trim(),und=$('und');
+ if(!q){und.hidden=true;$('results').innerHTML='<p class="empty">Pick an example above, or describe what you’re looking for.</p>';return}
+ const P=parse(q),A=active(P);S.A=A;
+ const toks=[...P.concepts.map(c=>['c:'+c.k,'Topic',CON[c.k].label]),P.place&&['place','Place',P.place.label],P.geo&&['geo','Level',P.geo],P.years&&['years','Years',P.years[0]===P.years[1]?P.years[0]:P.years[0]+' onward'],P.trend&&['trend','Wants','a trend over time']].filter(Boolean).filter(t=>!S.removed.has(t[0]));
+ und.hidden=false;
+ und.innerHTML='<b>We understood:</b>'+(toks.length?toks.map(([k,l,v])=>`<span class="tok"><i>${l}</i> ${esc(v)}<button data-rm="${k}" aria-label="Remove ${esc(l)}">×</button></span>`).join(''):'<span class="tok"><i>Nothing specific.</i> Try naming a topic.</span>');
+ if(S.mode==='kw'){$('results').innerHTML=kwView(q);bind();return}
+ let rs=D.map(d=>score(d,A)).filter(Boolean);
+ const hidden=rs.filter(r=>r.hidden);rs=rs.filter(r=>!r.hidden);
+ let filtered=0;
+ rs=rs.filter(r=>{const drop=$('hideStale').checked&&r.stale;if(drop)filtered++;return!drop});
+ rs.sort((a,b)=>b.s-a.s);
+ let html=`<p class="count">${rs.length} dataset${rs.length===1?'':'s'}, best fit first</p>`;
+ if(!rs.length)html+='<p class="empty">Nothing fits all of that. Remove a term from “We understood” to widen the search.</p>';
+ html+=rs.map(card).join('');
+ if(hidden.length||filtered)html+=`<div class="hidden-note">${hidden.length?`Set aside ${hidden.length}: `+hidden.map(r=>`<b>${esc(r.d.name)}</b> (${esc(r.hidden)})`).join('; ')+'. ':''}${filtered?`${filtered} more hidden by your cleanup settings.`:''}</div>`;
+ $('results').innerHTML=html;bind()}
+function bind(){
+ document.querySelectorAll('[data-raw]').forEach(b=>b.onclick=()=>{const p=$('raw'+b.dataset.raw);p.hidden=!p.hidden;b.textContent=p.hidden?'Show raw government metadata':'Hide raw metadata'});
+ document.querySelectorAll('[data-cols]').forEach(b=>b.onclick=()=>{S.openCols.add(+b.dataset.cols);render()});
+ document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{S.removed.add(b.dataset.rm);render()})}
+function run(q){S.q=q;$('q').value=q;S.removed=new Set();render()}
+$('tries').insertAdjacentHTML('beforeend',TRIES.map(t=>`<button class="chip" type="button">${esc(t)}</button>`).join(''));
+$('tries').querySelectorAll('.chip').forEach(b=>b.onclick=()=>run(b.textContent));
+$('f').onsubmit=e=>{e.preventDefault();run($('q').value)};
+const setMode=m=>{S.mode=m;$('m-smart').setAttribute('aria-selected',m==='smart');$('m-kw').setAttribute('aria-selected',m==='kw');$('filters').style.display=m==='kw'?'none':'';render()};
+$('m-smart').onclick=()=>setMode('smart');$('m-kw').onclick=()=>setMode('kw');
+['hideStale','group'].forEach(id=>$(id).onchange=()=>{S.group=$('group').checked;render()});
+S.group=true;
+run(TRIES[0]);
+}
+</script>
+</body>
+</html>

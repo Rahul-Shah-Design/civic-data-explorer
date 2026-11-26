@@ -1,0 +1,5 @@
+raw/
+clean/
+*.jsonl
+*.cursor
+__pycache__/
