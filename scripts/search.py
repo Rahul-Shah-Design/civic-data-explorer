@@ -32,6 +32,9 @@ GEO_WORDS = [('tract', r'\btracts?\b|\bneighborhoods?\b'), ('block group', r'\bb
              ('state', r'\bby state\b|\beach state\b|\bstates\b'), ('address / point', r'\blocations?\b|\baddresses\b|\bnear\b')]
 STOP = set('a an the in of by for to and or on at with from is are was what which where who how many much do does did my our me i '
            'data dataset datasets find show get about any there since after before between per rates rate level each'.split())
+# Value matching: how much a match on a value inside the data counts, and how close it must be (cosine distance)
+VAL_WEIGHT = 0.3
+VAL_MAX_DIST = 0.22
 QUERY_PREFIX = 'Represent this sentence for searching relevant passages: '  # bge retrieval prefix
 
 
@@ -125,12 +128,12 @@ def search(db, q, n=10, mode='hybrid', model=None, overrides=None):
         for i, (rid, dist) in enumerate(rows):
             ranks.setdefault(rid, {})['vec'] = i + 1
         # values inside datasets (e.g. 'Current asthma among adults') matched directly against the question
-        if db.execute("SELECT count(*) FROM sqlite_master WHERE name='vec_vals'").fetchone()[0]:
+        if VAL_WEIGHT > 0 and db.execute("SELECT count(*) FROM sqlite_master WHERE name='vec_vals'").fetchone()[0]:
             vrows = db.execute('SELECT v.rowid, v.distance, x.text, x.rowids FROM vec_vals v JOIN vals x ON x.vid = v.rowid '
                                'WHERE v.embedding MATCH ? AND k = 60', (sqlite_vec.serialize_float32([float(x) for x in qv]),)).fetchall()
             seen = 0
             for vid, dist, text, rids in vrows:
-                if dist > 0.35:  # cosine distance: only close matches count
+                if dist > VAL_MAX_DIST:  # only close matches count
                     continue
                 for rid in json.loads(rids):
                     if 'val' not in ranks.get(rid, {}):
@@ -148,7 +151,7 @@ def search(db, q, n=10, mode='hybrid', model=None, overrides=None):
     out, hidden = [], 0
     for rid, rk in ranks.items():
         r = recs[rid]
-        score = sum(1.0 / (60 + v) for k, v in rk.items() if k != 'val_text')
+        score = sum((VAL_WEIGHT if k == 'val' else 1.0) / (60 + v) for k, v in rk.items() if k != 'val_text')
         why = []
         if 'all' in rk: why.append('contains all your key words')
         if 'val' in rk: why.append('has data on "%s"' % rk['val_text'][:80])
