@@ -692,6 +692,41 @@
     "id": "census:B17020:850ed399",
     "title": "Poverty Status in the Past 12 Months by Age (B17020)",
     "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:B17024:51ff83b6",
+    "title": "Age by Ratio of Income to Poverty Level in the Past 12 Months (B17024)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:S1701:63886ddb",
+    "title": "Poverty Status in the Past 12 Months (S1701)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:S1701:278dc307",
+    "title": "POVERTY STATUS IN THE PAST 12 MONTHS (S1701)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "dg:poverty-rate-200-fpl-and-child-under-18-poverty-rate-by-california-regions",
+    "title": "Poverty Rate (<200% FPL) and Child (under 18) Poverty Rate by California Regions",
+    "publisher": "State of California"
+   },
+   {
+    "id": "dg:rural-child-poverty-chart-gallery",
+    "title": "Rural Child Poverty Chart Gallery",
+    "publisher": "Department of Agriculture"
+   },
+   {
+    "id": "dg:number-of-children-in-poverty-official-poverty-measure-opm",
+    "title": "Number of children in poverty - official poverty measure (OPM)",
+    "publisher": "State of Maryland"
+   },
+   {
+    "id": "dg:selected-trend-table-from-health-united-states-2011-vaccination-coverage-among-children-19",
+    "title": "Selected Trend Table from Health, United States, 2011. Vaccination coverage among children 19 - 35 months of age for selected diseases, by race, Hispanic origin, poverty level, and location of residence in metropolitan statistical area: United States, sel",
+    "publisher": "U.S. Department of Health & Human Services"
    }
   ]
  },
@@ -709,6 +744,21 @@
     "id": "census:B25106:543b4fab",
     "title": "Tenure by Housing Costs as a Percentage of Household Income in the Past 12 Months (B25106)",
     "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:B25071:4b26700d",
+    "title": "Median Gross Rent as a Percentage of Household Income in the Past 12 Months (Dollars) (B25071)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:B25074:6cafb349",
+    "title": "Household Income by Gross Rent as a Percentage of Household Income in the Past 12 Months (B25074)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "dg:housing-cost-burden",
+    "title": "Housing Cost Burden",
+    "publisher": "State of California"
    }
   ]
  },
@@ -736,6 +786,36 @@
     "id": "census:B19013:91d56842",
     "title": "MEDIAN HOUSEHOLD INCOME IN THE PAST 12 MONTHS (IN 2021 INFLATION-ADJUSTED DOLLARS) (B19013)",
     "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:S1903:ef073c27",
+    "title": "Median Income in the Past 12 Months (in 2025 Inflation-Adjusted Dollars) (S1903)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:S1903:f8d9a446",
+    "title": "MEDIAN INCOME IN THE PAST 12 MONTHS (IN 2013 INFLATION-ADJUSTED DOLLARS) (S1903)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:S1903:b49c2fd9",
+    "title": "Median Income in the Past 12 Months (in 2024 Inflation-Adjusted Dollars) (S1903)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:S1901:a74a3063",
+    "title": "Income in the Past 12 Months (in 2025 Inflation-Adjusted Dollars) (S1901)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:S1901:d1298f4b",
+    "title": "INCOME IN THE PAST 12 MONTHS (IN 2013 INFLATION-ADJUSTED DOLLARS) (S1901)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:S1901:fe845ac7",
+    "title": "Income in the Past 12 Months (in 2024 Inflation-Adjusted Dollars) (S1901)",
+    "publisher": "U.S. Census Bureau"
    }
   ]
  },
@@ -753,6 +833,36 @@
     "id": "census:B27010:3a1e9166",
     "title": "Types of Health Insurance Coverage by Age (B27010)",
     "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:S2701:c1e45d7b",
+    "title": "Selected Characteristics of Health Insurance Coverage in the United States (S2701)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:S2701:2b8a41fa",
+    "title": "HEALTH INSURANCE COVERAGE STATUS (S2701)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:C27001:f064eb21",
+    "title": "Health Insurance Coverage Status by Sex by Age (C27001)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "soc:data.pa.gov:s782-mpqp",
+    "title": "Uninsured Population Census Data CY 2009-2014 Human Services",
+    "publisher": "Jere Matthews"
+   },
+   {
+    "id": "soc:data.pa.gov:neqb-cw4e",
+    "title": "Uninsured Population Census Data 5-year estimates for release years 2017-Current County Human Services and Insurance",
+    "publisher": "John Long"
+   },
+   {
+    "id": "soc:data.pa.gov:kq4j-u8v5",
+    "title": "Uninsured Population Census Data 1-year estimates 2017-Current Statewide Human Services and Insurance",
+    "publisher": "John Long"
    }
   ]
  },
@@ -764,6 +874,31 @@
    {
     "id": "census:B08303:677005cf",
     "title": "Travel Time to Work (B08303)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:B08013:2960c038",
+    "title": "Aggregate Travel Time to Work (in Minutes) of Workers by Sex (B08013)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:S0801:1e3477e0",
+    "title": "Commuting Characteristics by Sex (S0801)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:S0801:25d60bd9",
+    "title": "COMMUTING CHARACTERISTICS BY SEX (S0801)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:S0802:b5fac636",
+    "title": "Means of Transportation to Work by Selected Characteristics (S0802)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:S0802:881063f6",
+    "title": "MEANS OF TRANSPORTATION TO WORK BY SELECTED CHARACTERISTICS (S0802)",
     "publisher": "U.S. Census Bureau"
    }
   ]
@@ -781,6 +916,16 @@
    {
     "id": "census:C16001:894e2e72",
     "title": "Language Spoken at Home for the Population 5 Years and Over (C16001)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:S1601:cc47f383",
+    "title": "Language Spoken at Home (S1601)",
+    "publisher": "U.S. Census Bureau"
+   },
+   {
+    "id": "census:S1601:d1367490",
+    "title": "LANGUAGE SPOKEN AT HOME (S1601)",
     "publisher": "U.S. Census Bureau"
    }
   ]

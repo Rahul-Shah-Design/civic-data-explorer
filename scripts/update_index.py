@@ -9,13 +9,14 @@ replaced; the embedding is recomputed only if the embedded text changed. New ids
 import json, os, sys
 os.environ.setdefault('HF_HUB_DISABLE_SYMLINKS_WARNING', '1')
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from build_index import embed_text, open_db, MODEL
+from build_index import embed_text, open_db, build_fts, MODEL
 
 
 def main():
     import sqlite_vec
     from fastembed import TextEmbedding
     db_path, patch = sys.argv[1], sys.argv[2]
+    no_embed = '--no-embed' in sys.argv
     db = open_db(db_path)
     todo_embed, n_upd, n_new = [], 0, 0
     for line in open(patch, encoding='utf-8'):
@@ -28,7 +29,6 @@ def main():
         if old:
             rid, od = old
             o = json.loads(od)
-            db.execute("INSERT INTO fts(fts, rowid, display_title, search_text) VALUES('delete', ?, ?, ?)", (rid, o['display_title'], o['search_text']))
             db.execute('UPDATE records SET source=?, display_title=?, publisher=?, states=?, geo_levels=?, year_min=?, year_max=?, freshness=?, '
                        'access=?, map_type=?, popularity=?, has_columns=?, doc=? WHERE rowid=?', vals + (rid,))
             if embed_text(o) != embed_text(r):
@@ -39,10 +39,10 @@ def main():
             db.execute('INSERT INTO records VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', (rid, r['id']) + vals)
             todo_embed.append((rid, r))
             n_new += 1
-        db.execute('INSERT INTO fts(rowid, display_title, search_text) VALUES (?, ?, ?)', (rid, r['display_title'], r['search_text']))
     db.commit()
+    build_fts(db)  # rebuilding the keyword index takes about a minute and keeps it consistent
     print('updated', n_upd, '| new', n_new, '| re-embedding', len(todo_embed), flush=True)
-    if todo_embed:
+    if todo_embed and not no_embed:
         model = TextEmbedding(MODEL)
         vecs = list(model.embed([embed_text(r) for _, r in todo_embed], batch_size=64))
         for (rid, _), v in zip(todo_embed, vecs):

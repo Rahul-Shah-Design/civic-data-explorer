@@ -36,12 +36,25 @@ def open_db(path):
     return db
 
 
+def build_fts(db):
+    """(Re)build the keyword index from the records table. Three columns, weighted at query time:
+    title (high), main text (normal), values inside the data such as measures and Census labels (low)."""
+    db.executescript('''
+    DROP TABLE IF EXISTS fts;
+    CREATE VIRTUAL TABLE fts USING fts5(display_title, search_text, contains_text, content='', tokenize='porter unicode61');
+    ''')
+    db.execute("""INSERT INTO fts(rowid, display_title, search_text, contains_text)
+                  SELECT rowid, display_title, json_extract(doc,'$.search_text'),
+                         coalesce((SELECT group_concat(value, '; ') FROM json_each(doc, '$.contains')), '')
+                  FROM records""")
+    db.commit()
+
+
 def load_records(db, src, limit):
     db.executescript('''
     CREATE TABLE IF NOT EXISTS records (rowid INTEGER PRIMARY KEY, id TEXT UNIQUE, source TEXT, display_title TEXT,
       publisher TEXT, states TEXT, geo_levels TEXT, year_min INT, year_max INT, freshness TEXT, access TEXT,
       map_type TEXT, popularity REAL, has_columns INT, doc TEXT);
-    CREATE VIRTUAL TABLE IF NOT EXISTS fts USING fts5(display_title, search_text, content='', tokenize='porter unicode61');
     CREATE VIRTUAL TABLE IF NOT EXISTS vec USING vec0(embedding float[384] distance_metric=cosine);
     CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT);
     ''')
@@ -63,7 +76,7 @@ def load_records(db, src, limit):
                 rows = []
     if rows:
         db.executemany(sql, rows)
-    db.execute("INSERT INTO fts(rowid, display_title, search_text) SELECT rowid, display_title, json_extract(doc,'$.search_text') FROM records")
+    build_fts(db)
     db.execute("INSERT OR REPLACE INTO meta VALUES ('model', ?)", (MODEL,))
     db.commit()
 

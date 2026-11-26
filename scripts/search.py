@@ -93,9 +93,9 @@ def search(db, q, n=10, mode='hybrid', model=None, overrides=None):
             # filter inside SQL so state-specific matches are not crowded out by other states
             rows = db.execute("""SELECT fts.rowid FROM fts JOIN records r ON r.rowid = fts.rowid
                                  WHERE fts MATCH ? AND (',' || r.states || ',' LIKE ? OR r.states = 'US')
-                                 ORDER BY bm25(fts, 4.0, 1.0) LIMIT 300""", (fq, '%,' + p['state'] + ',%')).fetchall()
+                                 ORDER BY bm25(fts, 4.0, 1.0, 0.25) LIMIT 300""", (fq, '%,' + p['state'] + ',%')).fetchall()
         else:
-            rows = db.execute('SELECT rowid FROM fts WHERE fts MATCH ? ORDER BY bm25(fts, 4.0, 1.0) LIMIT 300', (fq,)).fetchall()
+            rows = db.execute('SELECT rowid FROM fts WHERE fts MATCH ? ORDER BY bm25(fts, 4.0, 1.0, 0.25) LIMIT 300', (fq,)).fetchall()
         for i, (rid,) in enumerate(rows):
             ranks.setdefault(rid, {})['kw'] = i + 1
     has_vec = db.execute('SELECT count(*) FROM vec').fetchone()[0] > 0 if mode != 'keyword' else False
@@ -155,6 +155,9 @@ def search(db, q, n=10, mode='hybrid', model=None, overrides=None):
         elif 'unknown' in acc: score *= 0.75
         if r.get('freshness') == 'stale': score *= 0.85
         if r.get('research_like'): score *= 0.6
+        kind = (r.get('census') or {}).get('kind')
+        if kind == 'imputation': score *= 0.4
+        elif kind == 'race_iteration': score *= 0.8
         if r.get('columns'): score *= 1.1
         if r.get('map_type') and not p['map']: score *= 0.85
         if p['map'] and r.get('map_type'): score *= 1.3; why.append('map data')

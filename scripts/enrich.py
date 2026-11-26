@@ -137,14 +137,21 @@ if os.path.exists(P('raw', 'socrata_values.jsonl')):
                 vals += v
         if vals:
             VALUES[x['socrata_id']] = list(dict.fromkeys(vals))[:80]
+CENSUS_VARS = {}
+if os.path.exists(P('raw', 'census_vars.jsonl')):
+    for line in open(P('raw', 'census_vars.jsonl')):
+        x = json.loads(line)
+        CENSUS_VARS[x['id']] = x
 RESEARCH = re.compile(r'scihub|\bet al\b|^dataset ?[-:]|supporting dataset|^data (for|from|and code)\b|^data supporting|manuscript|\bjournal\b|supplementa', re.I)
 
 stats = C.Counter()
 with open(P('index', 'enriched.jsonl'), 'w') as out:
     for line in open(P('index', 'records.jsonl')):
         r = json.loads(line)
+        if r['id'] in CENSUS_VARS:
+            r['columns'] = CENSUS_VARS[r['id']]['columns'][:300]
         cols = r.get('columns') or []
-        coltext = ' '.join((c.get('name') or '') + ' ' + (c.get('description') or '') for c in cols[:60])
+        coltext = '' if r['source'] == 'census' else ' '.join((c.get('name') or '') + ' ' + (c.get('description') or '') for c in cols[:60])
         text = ' '.join([r['title'] or '', r.get('description') or '', ' '.join(r.get('keywords') or []), r.get('spatial_text') or '', coltext])
         d = {}
         r['display_title'] = display_title(r)
@@ -158,16 +165,21 @@ with open(P('index', 'enriched.jsonl'), 'w') as out:
             r['map_type'] = None
         r['freshness'] = freshness(r)
         r['access'] = access(r)
-        r['contains'] = VALUES.get(r.get('socrata_id')) or None
-        if r['contains']: d['contains'] = 'socrata_category_values'
+        r['contains'] = VALUES.get(r.get('socrata_id')) or (CENSUS_VARS.get(r['id']) or {}).get('contains') or None
+        if r['contains']: d['contains'] = 'census_variable_labels' if r['source'] == 'census' else 'socrata_category_values'
         r['research_like'] = bool(RESEARCH.search(r['title'] or '')) or None
+        tbl = (r.get('census') or {}).get('table') or ''
+        if r['source'] == 'census':
+            if tbl.startswith('B99') or re.match(r'(allocation|imputation) of', r['title'] or '', re.I):
+                r['census']['kind'] = 'imputation'   # data-quality tables, rarely what anyone wants
+            elif re.match(r'^[BC]\d{5}[A-I]$', tbl):
+                r['census']['kind'] = 'race_iteration'  # same table repeated for one race/ethnic group
         r['derived'] = {k: ('rule:' + v if v else None) for k, v in d.items()}
         kw = ', '.join((r.get('keywords') or [])[:15])
-        colnames = ', '.join((c.get('name') or c.get('field')) for c in cols[:40])
+        colnames = '' if r['source'] == 'census' else ', '.join((c.get('name') or c.get('field')) for c in cols[:40])  # Census: 'contains' already lists the label parts
         univ = (r.get('census') or {}).get('universe')
         r['search_text'] = '\n'.join(x for x in [r['display_title'], (r.get('description') or '')[:1500],
                                                   'Universe: ' + univ if univ else '', 'Keywords: ' + kw if kw else '',
-                                                  'Contains: ' + '; '.join(r['contains']) if r['contains'] else '',
                                                   'Columns: ' + colnames if colnames else '', 'Publisher: ' + (r.get('publisher') or '')] if x)
         out.write(json.dumps(r) + '\n')
         stats['records'] += 1
