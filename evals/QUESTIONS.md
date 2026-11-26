@@ -2,7 +2,7 @@
 
 Each question has the dataset(s) that count as a correct answer. **Keyword rank** = where the correct answer landed using keyword search alone (the data.gov-style baseline); a dash means not in the top 10.
 
-Baseline: keyword-only found the right dataset in the top 10 for **39 of 55** answerable questions (local 20/26, state 10/11, federal 6/10, Census 1/6, map 2/2).
+Baseline: keyword-only found the right dataset in the top 10 for **40 of 55** answerable questions (local 21/26, state 10/11, federal 6/10, Census 1/6, map 2/2).
 
 **Review checklist:** are these questions you would actually ask? Are the expected answers right? Rewrite any that sound too much like the dataset title (that makes keyword search look better than it is). Add your own.
 
@@ -20,7 +20,7 @@ Baseline: keyword-only found the right dataset in the top 10 for **39 of 55** an
 | q08 | how much do Chicago city employees get paid | Current Employee Names, Salaries, and Position Titles (City of Chicago) | 3 |
 | q09 | uber and lyft rides in Chicago | Transportation Network Providers - Trips (2025-) (City of Chicago); Transportation Network Providers - Trips (2023-2024) (City of Chicago); Transportation Network Providers - Trips (2018 - 2022) (City of Chicago) | - |
 | q10 | business licenses issued in Chicago | Business Licenses (City of Chicago) | 1 |
-| q11 | Austin animal shelter adoptions | Austin Animal Center Outcomes (City of Austin) | - |
+| q11 | Austin animal shelter adoptions | Austin Animal Center Outcomes (City of Austin); Austin Animal Center Outcomes (10/01/2013 to 05/05/2025) (City of Austin) | 1 |
 | q12 | construction permits issued in Austin | Issued Construction Permits (City of Austin) | 1 |
 | q13 | rent prices by neighborhood in Seattle | Apartment Market Rent Prices by Census Tract (City of Seattle) | 1 |
 | q14 | traffic collisions in Seattle | SDOT Collisions All Years (City of Seattle) | 1 |

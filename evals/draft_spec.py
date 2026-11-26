@@ -10,7 +10,7 @@ SPEC = [
  ("how much do Chicago city employees get paid", "local", [("Current Employee Names, Salaries, and Position Titles", "City of Chicago")]),
  ("uber and lyft rides in Chicago", "local", [("Transportation Network Providers - Trips%", "City of Chicago")]),
  ("business licenses issued in Chicago", "local", [("Business Licenses", "City of Chicago")]),
- ("Austin animal shelter adoptions", "local", [("Austin Animal Center Outcomes", "%")]),
+ ("Austin animal shelter adoptions", "local", [("Austin Animal Center Outcomes%", "%")]),
  ("construction permits issued in Austin", "local", [("Issued Construction Permits", "City of Austin")]),
  ("rent prices by neighborhood in Seattle", "local", [("Apartment Market Rent Prices by Census Tract", "%")]),
  ("traffic collisions in Seattle", "local", [("SDOT Collisions%", "%")]),
