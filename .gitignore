@@ -3,3 +3,4 @@ clean/
 *.jsonl
 *.cursor
 __pycache__/
+index/
