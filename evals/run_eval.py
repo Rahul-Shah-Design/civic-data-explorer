@@ -22,7 +22,8 @@ def main():
     ap.add_argument('--questions', default=os.path.join(HERE, 'questions_draft.json'))
     ap.add_argument('--modes', default='keyword,vector,hybrid')
     ap.add_argument('--misses', action='store_true')
-    ap.add_argument('--sweep', action='store_true', help='hybrid only: try value-matching settings and compare')
+    ap.add_argument('--sweep', action='store_true', help='hybrid only: try value-matching and reranker settings and compare')
+    ap.add_argument('--rerank-only', action='store_true', help='with --sweep: only the baseline and reranker rows')
     a = ap.parse_args()
     db = S.open_db(a.db)
     Q = json.load(open(a.questions, encoding='utf-8'))
@@ -32,8 +33,12 @@ def main():
         from fastembed import TextEmbedding
         model = TextEmbedding(db.execute("SELECT v FROM meta WHERE k='model'").fetchone()[0])
         print('%-22s %6s %6s %7s %6s  %s' % ('setting', 'hit@1', 'hit@5', 'hit@10', 'MRR', 'PLACES rank for "asthma rates in Ohio"'))
-        for w, dmax, gate in [(0, 0, True), (1.0, 0.3, False), (0.5, 0.3, True), (1.0, 0.3, True), (1.0, 0.35, True), (1.0, 0.4, True), (1.5, 0.35, True)]:
-            S.VAL_WEIGHT, S.VAL_MAX_DIST, S.VAL_GATE = w, dmax, gate
+        settings = [(0, 0, True, None), (1.0, 0.3, False, None), (0.5, 0.3, True, None), (1.0, 0.3, True, None), (1.0, 0.35, True, None),
+                    (1.0, 0.4, True, None), (0, 0, True, 'Xenova/ms-marco-MiniLM-L-6-v2'), (0, 0, True, 'BAAI/bge-reranker-base')]
+        if a.rerank_only:
+            settings = [s_ for s_ in settings if s_[3] or s_[0] == 0]
+        for w, dmax, gate, rr in settings:
+            S.VAL_WEIGHT, S.VAL_MAX_DIST, S.VAL_GATE, S.RERANK_MODEL = w, dmax, gate, rr
             c = collections.Counter()
             for q in Q:
                 if q['category'] == 'no_answer':
@@ -44,7 +49,7 @@ def main():
                 c['n'] += 1; c['h1'] += rank == 1; c['h5'] += bool(rank and rank <= 5); c['h10'] += rank is not None; c['rr'] += 1.0 / rank if rank else 0
             top = [h['record']['display_title'] for h in S.search(db, 'asthma rates in Ohio', 20, 'hybrid', model)[1]]
             pr = next((i + 1 for i, t in enumerate(top) if t.startswith('PLACES')), None)
-            label = 'values off' if w == 0 else 'w %.2f d %.2f %s' % (w, dmax, 'gated' if gate else 'ungated')
+            label = ('rerank ' + rr.split('/')[-1][:14]) if rr else ('values off' if w == 0 else 'w %.2f d %.2f %s' % (w, dmax, 'gated' if gate else 'ungated'))
             print('%-22s %6d %6d %7d %6.2f  %s' % (label, c['h1'], c['h5'], c['h10'], c['rr'] / c['n'], pr or 'not in top 20'), flush=True)
         return
     for mode in a.modes.split(','):

@@ -36,6 +36,29 @@ STOP = set('a an the in of by for to and or on at with from is are was what whic
 VAL_WEIGHT = 0.3
 VAL_MAX_DIST = 0.22
 VAL_GATE = True  # a value must also share a topic word with the question
+# Reranker: a small cross-encoder rereads the top candidates together with the question and reorders them
+RERANK_MODEL = None          # e.g. 'Xenova/ms-marco-MiniLM-L-6-v2' (small) or 'BAAI/bge-reranker-base' (bigger); None = off
+RERANK_TOP = 30
+RERANK_MIX = 0.7             # share of the final score that comes from the reranker
+_rerankers = {}
+
+def _reranker(name):
+    if name not in _rerankers:
+        from fastembed.rerank.cross_encoder import TextCrossEncoder
+        _rerankers[name] = TextCrossEncoder(name)
+    return _rerankers[name]
+
+
+def _rerank_text(r):
+    parts = [r['display_title'], (r.get('description') or '')[:400]]
+    if r.get('contains'):
+        parts.append('Contains: ' + '; '.join(r['contains'][:15]))
+    cols = ', '.join((c.get('name') or c.get('field') or '') for c in (r.get('columns') or [])[:15])
+    if cols:
+        parts.append('Columns: ' + cols)
+    return '. '.join(p for p in parts if p)[:1200]
+
+
 QUERY_PREFIX = 'Represent this sentence for searching relevant passages: '  # bge retrieval prefix
 
 
@@ -193,6 +216,17 @@ def search(db, q, n=10, mode='hybrid', model=None, overrides=None):
         score *= 1 + 0.07 * math.log1p(r.get('popularity') or 0)  # well-used datasets rank higher
         out.append((score, r, why, rk))
     out.sort(key=lambda x: -x[0])
+    if RERANK_MODEL and len(out) > 1:
+        head, tail = out[:RERANK_TOP], out[RERANK_TOP:]
+        ce = list(_reranker(RERANK_MODEL).rerank(q, [_rerank_text(r) for _, r, _, _ in head]))
+        lo, hi = min(ce), max(ce)
+        top_s = head[0][0] or 1.0
+        mixed = []
+        for (sc, r, w, rk), c in zip(head, ce):
+            cn = (c - lo) / (hi - lo) if hi > lo else 0.5
+            mixed.append((RERANK_MIX * cn + (1 - RERANK_MIX) * (sc / top_s), r, w, rk))
+        mixed.sort(key=lambda x: -x[0])
+        out = mixed + tail
     return p, [dict(score=round(s, 5), why=w, ranks={k: v for k, v in rk.items() if k != 'val_text'}, record=r) for s, r, w, rk in out[:n]], hidden
 
 
@@ -214,8 +248,11 @@ def main():
     ap.add_argument('--n', type=int, default=10)
     ap.add_argument('--mode', default='hybrid', choices=['hybrid', 'keyword', 'vector'])
     ap.add_argument('--json', action='store_true', help='machine-readable output (for agents)')
+    ap.add_argument('--rerank', nargs='?', const='Xenova/ms-marco-MiniLM-L-6-v2', default=None, help='rerank the top 30 (optionally name a model)')
     a = ap.parse_args()
     db = open_db(a.db)
+    global RERANK_MODEL
+    RERANK_MODEL = a.rerank
     res = search(db, a.query, a.n, a.mode)
     p, hits = res[0], res[1]
     hidden = res[2] if len(res) > 2 else 0
